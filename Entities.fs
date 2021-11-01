@@ -1,13 +1,10 @@
 module SmokeTracker.Entities
 
 open System
+open Microsoft.AspNetCore.Identity
 
-[<CLIMutable>]
-type User =
-    {
-        Id : int
-        Username : string
-    }
+[<AllowNullLiteral>]
+type User() = inherit IdentityUser<int>()
 
 type SmokeType = 
     | Cigar = 0

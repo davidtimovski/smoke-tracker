@@ -16,6 +16,8 @@ open SmokeTracker.Routes
 open Microsoft.AspNetCore.Authentication.JwtBearer
 open Microsoft.IdentityModel.Tokens
 open System.Text
+open Microsoft.AspNetCore.Identity
+open Entities
 
 let configureApp (app: IApplicationBuilder) =
     let env =
@@ -35,11 +37,10 @@ let configureApp (app: IApplicationBuilder) =
      | true ->
          app
              .UseDeveloperExceptionPage()
-             .UseCors(configureCors)
      | false ->
          app
-             .UseAuthentication()
              .UseGiraffeErrorHandler(errorHandler))
+        .UseAuthentication()
         .UseCors(configureCors)
         .UseStaticFiles()
         .UseGiraffe(webApp)
@@ -62,6 +63,31 @@ let configureServices (services: IServiceCollection) =
             options.UseNpgsql(settings.GetConnectionString("Default"))
             |> ignore)
     |> ignore
+
+    services
+        .AddIdentity<User, IdentityRole<int>>()
+        .AddEntityFrameworkStores<SmokeTrackerContext>()
+        |> ignore
+
+    services.Configure<IdentityOptions>(
+        Action<IdentityOptions>(fun options ->
+            // Password settings
+            options.Password.RequireDigit <- false
+            options.Password.RequireLowercase <- false
+            options.Password.RequireNonAlphanumeric <- false
+            options.Password.RequireUppercase <- false
+            options.Password.RequiredLength <- 8
+            options.Password.RequiredUniqueChars <- 1
+
+            // Lockout settings
+            options.Lockout.DefaultLockoutTimeSpan <- TimeSpan.FromMinutes(float 5)
+            options.Lockout.MaxFailedAccessAttempts <- 5
+            options.Lockout.AllowedForNewUsers <- true
+
+            // User settings
+            options.User.AllowedUserNameCharacters <- "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._"
+            options.User.RequireUniqueEmail <- false
+        )) |> ignore
 
     services
         .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

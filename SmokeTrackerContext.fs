@@ -2,14 +2,16 @@ namespace SmokeTracker.Data
 
 open Microsoft.EntityFrameworkCore
 open SmokeTracker.Entities
+open Microsoft.AspNetCore.Identity
+open Microsoft.AspNetCore.Identity.EntityFrameworkCore
 
 type SmokeTrackerContext(options : DbContextOptions<SmokeTrackerContext>) = 
-    inherit DbContext(options)
+    inherit IdentityDbContext<User, IdentityRole<int>, int>(options)
 
-    [<DefaultValue>]
-    val mutable users : DbSet<User>
-    member public this.Users with get() = this.users
-                             and set p = this.users <- p
+    override _.OnModelCreating(modelBuilder : ModelBuilder) =
+        base.OnModelCreating(modelBuilder)
+
+        modelBuilder.Entity<User>().ToTable("Users") |> ignore
 
     [<DefaultValue>]
     val mutable smokes : DbSet<Smoke>

@@ -11,14 +11,43 @@ open Microsoft.IdentityModel.Tokens
 open System.Text
 open SmokeTracker.AuthModels
 open Microsoft.Extensions.Configuration
+open Microsoft.AspNetCore.Identity
+open Entities
+
+let userNameAvailableHandler (userName : string) : HttpHandler =
+    fun (next : HttpFunc) (ctx : HttpContext) ->
+        task {
+            let userManager = ctx.GetService<UserManager<User>>()
+            let! user = userManager.FindByNameAsync(userName)
+            return! json (isNull user) next ctx
+        }
+
+let registerHandler =
+    fun (next : HttpFunc) (ctx : HttpContext) ->
+        task {
+            let! model = ctx.BindJsonAsync<LoginDto>()
+            let userManager = ctx.GetService<UserManager<User>>()
+
+            let user = User(UserName = model.UserName)
+            let! result = userManager.CreateAsync(user, model.Password)
+
+            match result.Succeeded with
+            | true ->
+                ctx.SetStatusCode 201
+            | false ->
+                ctx.SetStatusCode 422
+
+            return! next ctx
+        }
+
 
 let authorize =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         requiresAuthentication (challenge JwtBearerDefaults.AuthenticationScheme) next ctx
 
-let generateToken email (issuer : string) (audience : string) (secret : string) =
+let generateToken userName (issuer : string) (audience : string) (secret : string) =
     let claims = [|
-        Claim(JwtRegisteredClaimNames.Sub, email);
+        Claim(JwtRegisteredClaimNames.Sub, userName);
         Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) |]
 
     let expires = Nullable(DateTime.UtcNow.AddHours(1.0))
@@ -47,19 +76,27 @@ let handleGetSecured =
             
         text ("User " + email.Value + " is authorized to access this resource.") next ctx
 
-let handlePostToken =
+let tokenHandler =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
             let! model = ctx.BindJsonAsync<LoginDto>()
-            let settings = ctx.GetService<IConfiguration>()
-            
-            let issuer = settings.GetValue<string>("Auth:Issuer")
-            let audience = settings.GetValue<string>("Auth:Audience")
-            let secret = settings.GetValue<string>("Auth:SymmetricSecurityKey")
+            let userManager = ctx.GetService<UserManager<User>>()
 
-            // authenticate user
-            
-            let tokenResult = generateToken model.Email issuer audience secret
+            let! user = userManager.FindByNameAsync(model.UserName) 
+            let! loginIsValid = userManager.CheckPasswordAsync(user, model.Password)
 
-            return! json tokenResult next ctx
+            match loginIsValid with
+            | true ->
+                let settings = ctx.GetService<IConfiguration>()
+                let issuer = settings.GetValue<string>("Auth:Issuer")
+                let audience = settings.GetValue<string>("Auth:Audience")
+                let secret = settings.GetValue<string>("Auth:SymmetricSecurityKey")
+
+                let tokenResult = generateToken model.UserName issuer audience secret
+
+                return! json tokenResult next ctx
+            | false ->
+                ctx.SetStatusCode 401
+
+                return! next ctx
         }

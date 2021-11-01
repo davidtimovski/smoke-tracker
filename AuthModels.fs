@@ -11,7 +11,7 @@ type AuthSettings =
 [<CLIMutable>]
 type LoginDto =
     {
-        Email : string
+        UserName : string
         Password : string
     }
 

@@ -29,7 +29,7 @@
 		const synced = await smokesService.createSmoke(0);
 
 		$syncing = !synced;
-		await load();
+		load();
 
 		window.setTimeout(() => {
 			creatingCigar = false;
@@ -46,7 +46,7 @@
 		const synced = await smokesService.createSmoke(1);
 
 		$syncing = !synced;
-		await load();
+		load();
 
 		window.setTimeout(() => {
 			creatingVape = false;
@@ -63,7 +63,7 @@
 		const synced = await smokesService.createSmoke(2);
 
 		$syncing = !synced;
-		await load();
+		load();
 
 		window.setTimeout(() => {
 			creatingHeet = false;

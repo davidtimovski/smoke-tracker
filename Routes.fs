@@ -11,12 +11,14 @@ let webApp : HttpHandler =
         GET >=>
             choose [
                 route "/" >=> htmlFile "WebRoot/index.html"
+                routef "/api/username-available/%s" userNameAvailableHandler
                 route "/api/last-smoke-date" >=> lastSmokeDateHandler
-                route "/secured" >=> authorize >=> handleGetSecured
+                route "/api/secured" >=> authorize >=> handleGetSecured
             ]
         POST >=>
             choose [
-                route "/token" >=> handlePostToken
+                route "/api/register" >=> registerHandler
+                route "/api/token" >=> tokenHandler
                 route "/api/smokes" >=> createSmokesHandler
             ]
         DELETE >=>
