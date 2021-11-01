@@ -1,0 +1,13 @@
+:root {
+	--gray-color: #4d6276;
+	--light-blue-color: #dfefff;
+}
+
+body,
+html {
+	font-family: 'Poppins', sans-serif;
+	height: 100%;
+	font-size: 18px;
+	line-height: 24px;
+	color: var(--gray-color);
+}
