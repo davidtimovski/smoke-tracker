@@ -34,15 +34,10 @@ let configureApp (app: IApplicationBuilder) =
         |> ignore
 
     (match env.IsDevelopment() with
-     | true ->
-         app
-             .UseDeveloperExceptionPage()
-     | false ->
-         app
-             .UseGiraffeErrorHandler(errorHandler))
-        .UseAuthentication()
+     | true -> app.UseDeveloperExceptionPage()
+     | false -> app.UseGiraffeErrorHandler(errorHandler))
         .UseCors(configureCors)
-        .UseStaticFiles()
+        .UseAuthentication()
         .UseGiraffe(webApp)
 
 let configureAppConfiguration (context: WebHostBuilderContext) (config: IConfigurationBuilder) =
@@ -67,35 +62,34 @@ let configureServices (services: IServiceCollection) =
     services
         .AddIdentity<User, IdentityRole<int>>()
         .AddEntityFrameworkStores<SmokeTrackerContext>()
-        |> ignore
+    |> ignore
 
     services.Configure<IdentityOptions>(
-        Action<IdentityOptions>(fun options ->
-            // Password settings
-            options.Password.RequireDigit <- false
-            options.Password.RequireLowercase <- false
-            options.Password.RequireNonAlphanumeric <- false
-            options.Password.RequireUppercase <- false
-            options.Password.RequiredLength <- 8
-            options.Password.RequiredUniqueChars <- 1
+        Action<IdentityOptions>
+            (fun options ->
+                // Password settings
+                options.Password.RequireDigit <- false
+                options.Password.RequireLowercase <- false
+                options.Password.RequireNonAlphanumeric <- false
+                options.Password.RequireUppercase <- false
+                options.Password.RequiredLength <- 8
 
-            // Lockout settings
-            options.Lockout.DefaultLockoutTimeSpan <- TimeSpan.FromMinutes(float 5)
-            options.Lockout.MaxFailedAccessAttempts <- 5
-            options.Lockout.AllowedForNewUsers <- true
-
-            // User settings
-            options.User.AllowedUserNameCharacters <- "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._"
-            options.User.RequireUniqueEmail <- false
-        )) |> ignore
+                // User settings
+                options.User.AllowedUserNameCharacters <-
+                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._")
+    )
+    |> ignore
 
     services
-        .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddAuthentication(fun options ->
+            options.DefaultAuthenticateScheme <- JwtBearerDefaults.AuthenticationScheme
+            options.DefaultChallengeScheme <- JwtBearerDefaults.AuthenticationScheme
+        )
         .AddJwtBearer(fun options ->
             options.TokenValidationParameters <-
                 TokenValidationParameters(
                     ValidateActor = true,
-                    ValidateAudience = true,
+                    ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = settings.GetValue<string>("Auth:Issuer"),
@@ -111,7 +105,7 @@ let configureServices (services: IServiceCollection) =
     services.AddGiraffe() |> ignore
 
 let configureLogging (builder: ILoggingBuilder) =
-    builder.AddConsole().AddDebug() |> ignore
+    builder.SetMinimumLevel(LogLevel.Trace).AddConsole().AddDebug() |> ignore
 
 [<EntryPoint>]
 let main args =

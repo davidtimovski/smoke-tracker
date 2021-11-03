@@ -3,13 +3,35 @@
 </script>
 
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { syncing } from '../lib/stores';
+	import AuthService from '../lib/services/authService';
 	import SmokesService from '../lib/services/smokesService';
+	import Header from './Header.svelte';
+
+	// fetch('http://localhost:5100/api/token', {
+	// 	method: 'post',
+	// 	body: JSON.stringify({
+	// 		UserName: 'david',
+	// 		Password: 'skopje12'
+	// 	})
+	// }).then(async (response) => {
+	// 	var res = await response.json();
+	// 	debugger;
+	// 	fetch('http://localhost:5100/api/secured', {
+	// 		headers: new Headers({
+	// 			Authorization: 'Bearer ' + res.token
+	// 		})
+	// 	}).then((a) => {
+	// 		debugger;
+	// 	});
+	// });
 
 	let todaysCigars = 0;
 	let todaysVapes = 0;
 	let todaysHeets = 0;
-	const smokesService = new SmokesService();
+
+	let smokesService: SmokesService;
 
 	async function load() {
 		await smokesService.getTodaysSmokes().then((smokes) => {
@@ -90,12 +112,17 @@
 		});
 	}
 
-	load();
+	onMount(async () => {
+		smokesService = new SmokesService(new AuthService());
+		load();
+	});
 </script>
 
 <svelte:head>
 	<title>Home</title>
 </svelte:head>
+
+<Header />
 
 <section>
 	<div
@@ -195,7 +222,7 @@
 		border: 2px solid #f14668;
 		border-radius: 10px;
 		padding: 15px;
-		margin-bottom: 20px;
+		margin-top: 30px;
 		font-size: 22px;
 		user-select: none;
 		text-align: center;

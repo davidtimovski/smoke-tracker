@@ -2,21 +2,12 @@ namespace SmokeTracker.AuthModels
 
 [<CLIMutable>]
 type AuthSettings =
-    {
-        Issuer : string
-        Audience : string
-        SymmetricSecurityKey : string
-    }
+    { Issuer: string
+      Audience: string
+      SymmetricSecurityKey: string }
 
 [<CLIMutable>]
-type LoginDto =
-    {
-        UserName : string
-        Password : string
-    }
+type LoginDto = { Username: string; Password: string }
 
-[<CLIMutable>]
-type TokenResult =
-    {
-        Token : string
-    }
+type TokenResult = { Success: bool; Token: string; ExpiresIn: int }
+type FailedLoginResult = { Success: bool; Message: string }

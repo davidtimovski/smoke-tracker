@@ -10,20 +10,18 @@ let webApp : HttpHandler =
     choose [
         GET >=>
             choose [
-                route "/" >=> htmlFile "WebRoot/index.html"
                 routef "/api/username-available/%s" userNameAvailableHandler
-                route "/api/last-smoke-date" >=> lastSmokeDateHandler
-                route "/api/secured" >=> authorize >=> handleGetSecured
+                route "/api/last-smoke-date" >=> authorize >=> lastSmokeDateHandler
             ]
         POST >=>
             choose [
                 route "/api/register" >=> registerHandler
                 route "/api/token" >=> tokenHandler
-                route "/api/smokes" >=> createSmokesHandler
+                route "/api/smokes" >=> authorize >=> createSmokesHandler
             ]
         DELETE >=>
             choose [
-                route "/api/smokes" >=> deleteSmokesHandler
+                route "/api/smokes" >=> authorize >=> deleteSmokesHandler
             ]
         setStatusCode 404 >=> text "Not Found" ]
 

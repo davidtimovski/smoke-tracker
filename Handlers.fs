@@ -8,11 +8,12 @@ open FSharp.Control.Tasks
 open System.Linq
 open Entities
 open SmokeTracker.Models
+open AuthHandlers
 
 let lastSmokeDateHandler: HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
         task {
-            let userId = 1
+            let userId = getCurrentUserId ctx
 
             let db = ctx.GetService<SmokeTrackerContext>()
 
@@ -30,7 +31,7 @@ let lastSmokeDateHandler: HttpHandler =
 let createSmokesHandler: HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
         task {
-            let userId = 1
+            let userId = getCurrentUserId ctx
 
             let! smokeDtos = ctx.BindJsonAsync<seq<SmokeDto>>()
 
@@ -55,7 +56,7 @@ let createSmokesHandler: HttpHandler =
 let deleteSmokesHandler: HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
         task {
-            let userId = 1
+            let userId = getCurrentUserId ctx
 
             let dto = ctx.BindQueryString<DeleteSmokesDto>()
 

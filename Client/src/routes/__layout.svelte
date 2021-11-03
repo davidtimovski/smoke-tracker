@@ -1,13 +1,10 @@
 <script lang="ts">
-	import Header from '$lib/header/Header.svelte';
 	import '../css/modern-normalize.css';
 	import '../css/app.css';
 </script>
 
 <main>
 	<div class="container">
-		<Header />
-
 		<slot />
 	</div>
 </main>

@@ -14,8 +14,8 @@ open Microsoft.Extensions.Configuration
 open Microsoft.AspNetCore.Identity
 open Entities
 
-let userNameAvailableHandler (userName : string) : HttpHandler =
-    fun (next : HttpFunc) (ctx : HttpContext) ->
+let userNameAvailableHandler (userName: string) : HttpHandler =
+    fun (next: HttpFunc) (ctx: HttpContext) ->
         task {
             let userManager = ctx.GetService<UserManager<User>>()
             let! user = userManager.FindByNameAsync(userName)
@@ -23,37 +23,49 @@ let userNameAvailableHandler (userName : string) : HttpHandler =
         }
 
 let registerHandler =
-    fun (next : HttpFunc) (ctx : HttpContext) ->
+    fun (next: HttpFunc) (ctx: HttpContext) ->
         task {
             let! model = ctx.BindJsonAsync<LoginDto>()
             let userManager = ctx.GetService<UserManager<User>>()
 
-            let user = User(UserName = model.UserName)
+            let user = User(UserName = model.Username)
             let! result = userManager.CreateAsync(user, model.Password)
 
             match result.Succeeded with
-            | true ->
-                ctx.SetStatusCode 201
-            | false ->
-                ctx.SetStatusCode 422
+            | true -> ctx.SetStatusCode 201
+            | false -> ctx.SetStatusCode 422
 
             return! next ctx
         }
 
+let getCurrentUserId (ctx: HttpContext) =
+    let nameIdentifier =
+        ctx.User.FindFirst ClaimTypes.NameIdentifier
+
+    Convert.ToInt32 nameIdentifier.Value
 
 let authorize =
-    fun (next : HttpFunc) (ctx : HttpContext) ->
+    fun (next: HttpFunc) (ctx: HttpContext) ->
         requiresAuthentication (challenge JwtBearerDefaults.AuthenticationScheme) next ctx
 
-let generateToken userName (issuer : string) (audience : string) (secret : string) =
-    let claims = [|
-        Claim(JwtRegisteredClaimNames.Sub, userName);
-        Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) |]
+let private generateToken (userId: int) (issuer: string) (audience: string) (secret: string) =
+    let claims =
+        [| 
+            Claim(JwtRegisteredClaimNames.Sub, userId.ToString())
+            Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        |]
 
-    let expires = Nullable(DateTime.UtcNow.AddHours(1.0))
+    let tokenLastsMinutes = 60 * 24 * 30
+    let expires = Nullable(DateTime.UtcNow.AddMinutes(float tokenLastsMinutes))
     let notBefore = Nullable(DateTime.UtcNow)
-    let securityKey = SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
-    let signingCredentials = SigningCredentials(key = securityKey, algorithm = SecurityAlgorithms.HmacSha256)
+
+    let haha = expires.Value
+
+    let securityKey =
+        SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
+
+    let signingCredentials =
+        SigningCredentials(key = securityKey, algorithm = SecurityAlgorithms.HmacSha256)
 
     let token =
         JwtSecurityToken(
@@ -62,41 +74,65 @@ let generateToken userName (issuer : string) (audience : string) (secret : strin
             claims = claims,
             expires = expires,
             notBefore = notBefore,
-            signingCredentials = signingCredentials)
+            signingCredentials = signingCredentials
+        )
 
-    let tokenResult = {
-        Token = JwtSecurityTokenHandler().WriteToken(token)
+    let token = JwtSecurityTokenHandler().WriteToken(token)
+
+    {
+        Success = true
+        Token = token
+        ExpiresIn = tokenLastsMinutes
     }
 
-    tokenResult
-
-let handleGetSecured =
-    fun (next : HttpFunc) (ctx : HttpContext) ->
-        let email = ctx.User.FindFirst ClaimTypes.NameIdentifier
-            
-        text ("User " + email.Value + " is authorized to access this resource.") next ctx
-
 let tokenHandler =
-    fun (next : HttpFunc) (ctx : HttpContext) ->
+    fun (next: HttpFunc) (ctx: HttpContext) ->
         task {
             let! model = ctx.BindJsonAsync<LoginDto>()
             let userManager = ctx.GetService<UserManager<User>>()
+            let signInManager = ctx.GetService<SignInManager<User>>()
 
-            let! user = userManager.FindByNameAsync(model.UserName) 
-            let! loginIsValid = userManager.CheckPasswordAsync(user, model.Password)
+            let! user = userManager.FindByNameAsync(model.Username)
+            if isNull user then
+                let result = {
+                    Success = false
+                    Message = "Invalid login."
+                }
+                
+                return! json result next ctx
+            else
+                let! signInResult = signInManager.PasswordSignInAsync(user, model.Password, false, true)
 
-            match loginIsValid with
-            | true ->
-                let settings = ctx.GetService<IConfiguration>()
-                let issuer = settings.GetValue<string>("Auth:Issuer")
-                let audience = settings.GetValue<string>("Auth:Audience")
-                let secret = settings.GetValue<string>("Auth:SymmetricSecurityKey")
+                match signInResult.Succeeded with
+                | true ->
+                    let settings = ctx.GetService<IConfiguration>()
+                    let issuer = settings.GetValue<string>("Auth:Issuer")
 
-                let tokenResult = generateToken model.UserName issuer audience secret
+                    let audience =
+                        settings.GetValue<string>("Auth:Audience")
 
-                return! json tokenResult next ctx
-            | false ->
-                ctx.SetStatusCode 401
+                    let secret =
+                        settings.GetValue<string>("Auth:SymmetricSecurityKey")
 
-                return! next ctx
+                    let tokenResult = generateToken user.Id issuer audience secret
+
+                    return! json tokenResult next ctx
+                | false ->
+                    match signInResult.IsLockedOut with
+                    | true ->
+                        ctx.SetStatusCode 422
+
+                        let result = {
+                            Success = false
+                            Message = "You've been locked out."
+                        }
+                        return! json result next ctx
+                    | false ->
+                        ctx.SetStatusCode 401
+
+                        let result = {
+                            Success = false
+                            Message = "Invalid login."
+                        }
+                        return! json result next ctx
         }

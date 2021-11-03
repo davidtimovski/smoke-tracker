@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { syncing } from '../stores';
+	import { syncing } from '../lib/stores';
 </script>
 
 <header>

@@ -1,13 +1,17 @@
+import { goto } from '$app/navigation';
 import Database from './database';
 import { v4 as uuidv4 } from 'uuid';
+import type AuthService from './authService';
 
 export default class SmokesService {
-	private readonly baseUri = 'http://localhost:5100';
+	private readonly baseUri = 'http://localhost:5100/';
 	private db: Database;
+	private readonly authService: AuthService;
 
-	constructor() {
+	constructor(authService: AuthService) {
 		this.db = new Database();
 		this.db.open();
+		this.authService = authService;
 	}
 
 	public async getTodaysSmokes() {
@@ -23,15 +27,25 @@ export default class SmokesService {
 
 		await this.db.smokes.add(smoke);
 
-		if (navigator.onLine) {
-			await fetch(this.baseUri + '/api/smokes', {
-				method: 'post',
-				body: JSON.stringify([smoke])
-			});
-			return true;
+		if (!navigator.onLine) {
+			return false;
 		}
 
-		return false;
+		if (!this.authService.loggedIn) {
+			goto('login');
+			return false;
+		}
+
+		const response = await fetch(this.baseUri + 'api/smokes', {
+			method: 'post',
+			body: JSON.stringify([smoke]),
+			headers: new Headers({
+				Accept: 'application/json',
+				Authorization: 'Bearer ' + this.authService.token,
+				'X-Requested-With': 'Fetch'
+			})
+		});
+		return response.status === 201;
 	}
 
 	public async undoLastCreate() {
@@ -41,16 +55,26 @@ export default class SmokesService {
 		}
 
 		const lastSmoke = (await this.db.smokes.reverse().sortBy('date'))[0];
-		this.db.smokes.delete(lastSmoke.id);
+		await this.db.smokes.delete(lastSmoke.id);
 
-		if (navigator.onLine) {
-			await fetch(this.baseUri + `/api/smokes?ids=${lastSmoke.id}`, {
-				method: 'delete'
-			});
-			return true;
+		if (!navigator.onLine) {
+			return false;
 		}
 
-		return false;
+		if (!this.authService.loggedIn) {
+			goto('login');
+			return false;
+		}
+
+		const response = await fetch(this.baseUri + `api/smokes?ids=${lastSmoke.id}`, {
+			method: 'delete',
+			headers: new Headers({
+				Accept: 'application/json',
+				Authorization: 'Bearer ' + this.authService.token,
+				'X-Requested-With': 'Fetch'
+			})
+		});
+		return response.status === 204;
 	}
 
 	private dateIsToday(date: Date) {
