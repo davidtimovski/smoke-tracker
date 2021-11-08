@@ -14,6 +14,23 @@ open Microsoft.Extensions.Configuration
 open Microsoft.AspNetCore.Identity
 open Entities
 
+let private bind switchFunction twoTrackInput =
+    match twoTrackInput with
+    | Success s -> switchFunction s
+    | Failure f -> Failure f
+
+let private usernameMax25Chars (model : RegisterDto) =
+    if model.Username.Length > 25 then Failure "Username cannot be longer than 25 characters."
+    else Success model
+
+let private passwordAtLeast8Chars (model : RegisterDto) =
+    if model.Password.Length < 8 then Failure "Password must be at least 8 characters long."
+    else Success model
+
+let private validateRegisterModel =
+    usernameMax25Chars
+    >> bind passwordAtLeast8Chars
+
 let userNameAvailableHandler (userName: string) : HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
         task {
@@ -25,17 +42,53 @@ let userNameAvailableHandler (userName: string) : HttpHandler =
 let registerHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
         task {
-            let! model = ctx.BindJsonAsync<LoginDto>()
-            let userManager = ctx.GetService<UserManager<User>>()
+            let! model = ctx.BindJsonAsync<RegisterDto>()
 
-            let user = User(UserName = model.Username)
-            let! result = userManager.CreateAsync(user, model.Password)
+            let validationResult =
+                validateRegisterModel model
 
-            match result.Succeeded with
-            | true -> ctx.SetStatusCode 201
-            | false -> ctx.SetStatusCode 422
+            match validationResult with
+            | Success _ ->
+                let userManager = ctx.GetService<UserManager<User>>()
 
-            return! next ctx
+                let user = User(UserName = model.Username)
+                let! result = userManager.CreateAsync(user, model.Password)
+
+                match result.Succeeded with
+                | true ->
+                    ctx.SetStatusCode 201
+
+                    let result = {
+                        Success = true
+                        Message = ""
+                    }
+                    return! json result next ctx
+                | false ->
+                    ctx.SetStatusCode 422
+
+                    let invalidUsername = 
+                        result.Errors
+                        |> Seq.exists (fun x -> x.Code = "InvalidUserName")
+
+                    let errorMessage =
+                        match invalidUsername with
+                        | true -> "Username can only contain alphanumeric characters or '-', '.', and '_'."
+                        | false -> "Invalid registration."
+
+                    let result = {
+                        Success = false
+                        Message = errorMessage
+                    }
+                    return! json result next ctx
+
+            | Failure errorMessage ->
+                ctx.SetStatusCode 422
+
+                let result = {
+                    Success = false
+                    Message = errorMessage
+                }
+                return! json result next ctx
         }
 
 let getCurrentUserId (ctx: HttpContext) =
@@ -58,8 +111,6 @@ let private generateToken (userId: int) (issuer: string) (audience: string) (sec
     let tokenLastsMinutes = 60 * 24 * 30
     let expires = Nullable(DateTime.UtcNow.AddMinutes(float tokenLastsMinutes))
     let notBefore = Nullable(DateTime.UtcNow)
-
-    let haha = expires.Value
 
     let securityKey =
         SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
@@ -118,21 +169,11 @@ let tokenHandler =
 
                     return! json tokenResult next ctx
                 | false ->
-                    match signInResult.IsLockedOut with
-                    | true ->
-                        ctx.SetStatusCode 422
+                    ctx.SetStatusCode 422
 
-                        let result = {
-                            Success = false
-                            Message = "You've been locked out."
-                        }
-                        return! json result next ctx
-                    | false ->
-                        ctx.SetStatusCode 401
-
-                        let result = {
-                            Success = false
-                            Message = "Invalid login."
-                        }
-                        return! json result next ctx
+                    let result = {
+                        Success = false
+                        Message = if signInResult.IsLockedOut then "You've been locked out." else "Invalid login."
+                    }
+                    return! json result next ctx
         }

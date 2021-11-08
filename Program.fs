@@ -105,7 +105,7 @@ let configureServices (services: IServiceCollection) =
     services.AddGiraffe() |> ignore
 
 let configureLogging (builder: ILoggingBuilder) =
-    builder.SetMinimumLevel(LogLevel.Trace).AddConsole().AddDebug() |> ignore
+    builder.AddConsole().AddDebug() |> ignore
 
 [<EntryPoint>]
 let main args =

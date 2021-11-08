@@ -4,28 +4,13 @@
 
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { syncing } from '../lib/stores';
-	import AuthService from '../lib/services/authService';
-	import SmokesService from '../lib/services/smokesService';
+	import { slide } from 'svelte/transition';
+	import AuthService from '$lib/services/authService';
+	import SyncService from '$lib/services/syncService';
+	import SmokesService from '$lib/services/smokesService';
 	import Header from './Header.svelte';
 
-	// fetch('http://localhost:5100/api/token', {
-	// 	method: 'post',
-	// 	body: JSON.stringify({
-	// 		UserName: 'david',
-	// 		Password: 'skopje12'
-	// 	})
-	// }).then(async (response) => {
-	// 	var res = await response.json();
-	// 	debugger;
-	// 	fetch('http://localhost:5100/api/secured', {
-	// 		headers: new Headers({
-	// 			Authorization: 'Bearer ' + res.token
-	// 		})
-	// 	}).then((a) => {
-	// 		debugger;
-	// 	});
-	// });
+	let loginExpired = false;
 
 	let todaysCigars = 0;
 	let todaysVapes = 0;
@@ -47,10 +32,9 @@
 			return;
 		}
 
-		$syncing = creatingCigar = true;
-		const synced = await smokesService.createSmoke(0);
+		creatingCigar = true;
+		await smokesService.createSmoke(0);
 
-		$syncing = !synced;
 		load();
 
 		window.setTimeout(() => {
@@ -64,10 +48,9 @@
 			return;
 		}
 
-		$syncing = creatingVape = true;
-		const synced = await smokesService.createSmoke(1);
+		creatingVape = true;
+		await smokesService.createSmoke(1);
 
-		$syncing = !synced;
 		load();
 
 		window.setTimeout(() => {
@@ -81,10 +64,9 @@
 			return;
 		}
 
-		$syncing = creatingHeet = true;
-		const synced = await smokesService.createSmoke(2);
+		creatingHeet = true;
+		await smokesService.createSmoke(2);
 
-		$syncing = !synced;
 		load();
 
 		window.setTimeout(() => {
@@ -94,26 +76,33 @@
 
 	let undoButtonLabel = 'Undo last';
 	let undoing = false;
-	function undoSmoke() {
+	async function undoSmoke() {
 		if (undoing) {
 			return;
 		}
 
-		$syncing = undoing = true;
-		smokesService.undoLastCreate().then(async (synced) => {
-			$syncing = !synced;
-			await load();
+		undoing = true;
+		await smokesService.undoLastCreate();
 
-			undoButtonLabel = 'Undone!';
-			window.setTimeout(() => {
-				undoButtonLabel = 'Undo last';
-				undoing = false;
-			}, 2000);
-		});
+		await load();
+
+		undoButtonLabel = 'Undone!';
+		window.setTimeout(() => {
+			undoButtonLabel = 'Undo last';
+			undoing = false;
+		}, 2000);
 	}
 
 	onMount(async () => {
-		smokesService = new SmokesService(new AuthService());
+		const authService = new AuthService();
+		const syncService = new SyncService(authService);
+		smokesService = new SmokesService(authService, syncService);
+
+		if (authService.hasAccount && !authService.loggedIn) {
+			loginExpired = true;
+		}
+
+		syncService.sync();
 		load();
 	});
 </script>
@@ -121,6 +110,12 @@
 <svelte:head>
 	<title>Home</title>
 </svelte:head>
+
+{#if loginExpired}
+	<div in:slide class="warning-alert">
+		Your login expired. <a sveltekit:prefetch href="/login">Log back in</a> for your changes to be synced.
+	</div>
+{/if}
 
 <Header />
 

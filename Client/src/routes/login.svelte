@@ -10,7 +10,7 @@
 	let username = '';
 	let password = '';
 
-	let offline = true;
+	let offline: boolean;
 	let authService: AuthService;
 	onMount(async () => {
 		authService = new AuthService();
@@ -30,11 +30,11 @@
 
 		invalidLoginMessage = null;
 
-		if (!username) {
+		if (username.trim() === '') {
 			invalidLoginMessage = 'Username is required.';
 			return;
 		}
-		if (!password) {
+		if (password.trim() === '') {
 			invalidLoginMessage = 'Password is required.';
 			return;
 		}
@@ -54,8 +54,12 @@
 </svelte:head>
 
 <section>
+	{#if offline === true}
+		<div in:slide class="warning-alert">You must be online in order to login.</div>
+	{/if}
+
 	{#if invalidLoginMessage}
-		<div in:slide class="invalid-login-message">{invalidLoginMessage}</div>
+		<div in:slide class="validation-alert">{invalidLoginMessage}</div>
 	{/if}
 
 	<form on:submit|preventDefault={login} class="login-form">
@@ -70,58 +74,13 @@
 		</div>
 
 		<div class="form-control submit">
-			<input type="submit" value="Login" disabled={offline} />
+			<input type="submit" value="Login" disabled={!authService || offline === true} />
 		</div>
 	</form>
 </section>
 
 <style lang="scss">
-	.invalid-login-message {
-		background: #fdd;
-		border-radius: 5px;
-		padding: 15px;
-		margin-top: 10%;
-		text-align: center;
-		font-size: 16px;
-	}
-
 	.login-form {
 		margin-top: 25%;
-	}
-
-	label {
-		display: block;
-		margin-bottom: 5px;
-	}
-
-	.form-control {
-		margin-bottom: 15px;
-
-		input[type='text'],
-		input[type='password'] {
-			width: 100%;
-			border: 1px solid #888;
-			border-radius: 5px;
-			outline: none;
-			padding: 3px 8px;
-		}
-
-		&.submit {
-			margin-top: 25px;
-			text-align: right;
-		}
-	}
-
-	input[type='submit'] {
-		background: #00d1b2;
-		border: 1px solid #00d1b2;
-		border-radius: 5px;
-		outline: none;
-		padding: 6px 15px;
-		color: #fff;
-
-		&:disabled {
-			opacity: 0.5;
-		}
 	}
 </style>

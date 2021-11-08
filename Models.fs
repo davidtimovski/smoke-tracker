@@ -11,3 +11,9 @@ type SmokeDto =
 
 [<CLIMutable>]
 type DeleteSmokesDto = { Ids: Guid [] }
+
+[<CLIMutable>]
+type SmokesSync = 
+    { New: Smoke []
+      Updated: Smoke []
+      Deleted: Guid [] }

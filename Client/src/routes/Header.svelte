@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { syncing } from '../lib/stores';
+	import { synced } from '../lib/stores';
 </script>
 
 <header>
 	<div>
-		<div class="status-indicator synced" class:inactive={$syncing} />
-		<div class="status-indicator syncing" class:inactive={!$syncing} />
+		<div class="status-indicator synced" class:inactive={!$synced} />
+		<div class="status-indicator unsynced" class:inactive={$synced} />
 	</div>
 </header>
 
@@ -24,7 +24,7 @@
 		&.synced {
 			background: #48c78e;
 		}
-		&.syncing {
+		&.unsynced {
 			background: #3e8ed0;
 			margin-left: 15px;
 		}

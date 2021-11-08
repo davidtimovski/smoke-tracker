@@ -1,13 +1,17 @@
 import type LoginResult from '$lib/models/loginResult';
+import type RegisterResult from '$lib/models/registerResult';
 
 export default class AuthService {
 	private readonly baseUri = 'http://localhost:5100/';
 	private expires: Date;
 	public token: string;
+	public hasAccount: boolean;
 
 	constructor() {
 		const expiresItem = window.localStorage.getItem('expires');
 		if (expiresItem) {
+			this.hasAccount = true;
+
 			const expires = new Date(window.parseInt(expiresItem, 10));
 			if (expires > new Date()) {
 				this.expires = expires;
@@ -16,6 +20,8 @@ export default class AuthService {
 				window.localStorage.setItem('token', '');
 				window.localStorage.setItem('expires', '');
 			}
+		} else {
+			this.hasAccount = false;
 		}
 	}
 
@@ -53,5 +59,36 @@ export default class AuthService {
 		}
 
 		return result;
+	}
+
+	public async checkIfUsernameAvailable(username: string) {
+		if (username.trim() === '') {
+			return true;
+		}
+
+		const response = await fetch(this.baseUri + `api/username-available/${username}`, {
+			headers: new Headers({
+				Accept: 'application/json',
+				'X-Requested-With': 'Fetch'
+			})
+		});
+
+		return <boolean>await response.json();
+	}
+
+	public async register(username: string, password: string) {
+		const response = await fetch(this.baseUri + 'api/register', {
+			method: 'post',
+			body: JSON.stringify({
+				username: username,
+				password: password
+			}),
+			headers: new Headers({
+				Accept: 'application/json',
+				'X-Requested-With': 'Fetch'
+			})
+		});
+
+		return <RegisterResult>await response.json();
 	}
 }

@@ -10,24 +10,6 @@ open Entities
 open SmokeTracker.Models
 open AuthHandlers
 
-let lastSmokeDateHandler: HttpHandler =
-    fun (next: HttpFunc) (ctx: HttpContext) ->
-        task {
-            let userId = getCurrentUserId ctx
-
-            let db = ctx.GetService<SmokeTrackerContext>()
-
-            let! lastSmokeDate =
-                db
-                    .Smokes
-                    .Where(fun x -> x.UserId = userId)
-                    .OrderByDescending(fun x -> x.Date)
-                    .Select(fun x -> x.Date)
-                    .FirstOrDefaultAsync()
-
-            return! json lastSmokeDate next ctx
-        }
-
 let createSmokesHandler: HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
         task {
@@ -72,6 +54,48 @@ let deleteSmokesHandler: HttpHandler =
             db.SaveChanges() |> ignore
 
             ctx.SetStatusCode 204
+
+            return! next ctx
+        }
+
+let syncSmokesHandler: HttpHandler =
+    fun (next: HttpFunc) (ctx: HttpContext) ->
+        task {
+            let userId = getCurrentUserId ctx
+
+            let! smokeSync = ctx.BindJsonAsync<SmokesSync>()
+
+            let db = ctx.GetService<SmokeTrackerContext>()
+
+            let newSmokes =
+                smokeSync.New
+                |> Array.map
+                    (fun x ->
+                        { Id = x.Id
+                          UserId = userId
+                          Type = x.Type
+                          Date = x.Date })
+
+            db.Smokes.AddRange(newSmokes) |> ignore
+
+            let updatedSmokes =
+                smokeSync.Updated
+                |> Array.map
+                    (fun x ->
+                        { Id = x.Id
+                          UserId = userId
+                          Type = x.Type
+                          Date = x.Date })
+
+            db.Smokes.AddRange(updatedSmokes) |> ignore
+
+            let smokesToDelete = db.Smokes.Where(fun x -> smokeSync.Deleted.Contains(x.Id)).ToArray()
+            for smoke in smokesToDelete do
+                db.Smokes.Remove(smoke) |> ignore
+            
+            db.SaveChanges() |> ignore
+
+            ctx.SetStatusCode 201
 
             return! next ctx
         }

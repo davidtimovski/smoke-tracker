@@ -11,12 +11,12 @@ let webApp : HttpHandler =
         GET >=>
             choose [
                 routef "/api/username-available/%s" userNameAvailableHandler
-                route "/api/last-smoke-date" >=> authorize >=> lastSmokeDateHandler
             ]
         POST >=>
             choose [
                 route "/api/register" >=> registerHandler
                 route "/api/token" >=> tokenHandler
+                route "/api/smokes/sync" >=> authorize >=> syncSmokesHandler
                 route "/api/smokes" >=> authorize >=> createSmokesHandler
             ]
         DELETE >=>
