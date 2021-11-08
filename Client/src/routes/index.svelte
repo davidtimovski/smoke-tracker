@@ -10,12 +10,15 @@
 	import SmokesService from '$lib/services/smokesService';
 	import Header from './Header.svelte';
 
-	let loginExpired = false;
+	let loggedIn: boolean;
+	let hasAccount: boolean;
 
 	let todaysCigars = 0;
 	let todaysVapes = 0;
 	let todaysHeets = 0;
+	let todaysSmokesSum = 0;
 
+	let authService: AuthService;
 	let smokesService: SmokesService;
 
 	async function load() {
@@ -23,6 +26,8 @@
 			todaysCigars = smokes.filter((x) => x.type === 0).length;
 			todaysVapes = smokes.filter((x) => x.type === 1).length;
 			todaysHeets = smokes.filter((x) => x.type === 2).length;
+
+			todaysSmokesSum = todaysCigars + todaysVapes + todaysHeets;
 		});
 	}
 
@@ -76,7 +81,7 @@
 
 	let undoButtonLabel = 'Undo last';
 	let undoing = false;
-	async function undoSmoke() {
+	async function undoLastSmoke() {
 		if (undoing) {
 			return;
 		}
@@ -93,14 +98,19 @@
 		}, 2000);
 	}
 
+	function logout() {
+		authService.logout();
+		loggedIn = false;
+	}
+
 	onMount(async () => {
-		const authService = new AuthService();
+		authService = new AuthService();
+
+		loggedIn = authService.loggedIn;
+		hasAccount = authService.hasAccount;
+
 		const syncService = new SyncService(authService);
 		smokesService = new SmokesService(authService, syncService);
-
-		if (authService.hasAccount && !authService.loggedIn) {
-			loginExpired = true;
-		}
 
 		syncService.sync();
 		load();
@@ -111,9 +121,9 @@
 	<title>Home</title>
 </svelte:head>
 
-{#if loginExpired}
+{#if hasAccount === true && loggedIn === false}
 	<div in:slide class="warning-alert">
-		Your login expired. <a sveltekit:prefetch href="/login">Log back in</a> for your changes to be synced.
+		You're not logged in currently. <a sveltekit:prefetch href="/login">Log back in</a> if you want your changes to be synced.
 	</div>
 {/if}
 
@@ -153,7 +163,21 @@
 		<span class="smoke-count">{todaysHeets}</span>
 	</div>
 
-	<div on:click={undoSmoke} class="undo-smoke-button" class:undoing role="button">{undoButtonLabel}</div>
+	<button
+		type="button"
+		on:click={undoLastSmoke}
+		disabled={todaysSmokesSum === 0}
+		class="undo-smoke-button"
+		class:undoing>{undoButtonLabel}</button
+	>
+
+	<footer>
+		{#if loggedIn === true}
+			<button type="button" on:click={logout}>Logout</button>
+		{:else if hasAccount === false}
+			<a sveltekit:prefetch href="/register">Register</a>
+		{/if}
+	</footer>
 </section>
 
 <style lang="scss">
@@ -213,6 +237,7 @@
 	}
 
 	.undo-smoke-button {
+		width: 100%;
 		background: #fff;
 		border: 2px solid #f14668;
 		border-radius: 10px;
@@ -225,10 +250,47 @@
 		cursor: pointer;
 		transition: background 200ms ease-out, color 200ms ease-out;
 
+		&:disabled {
+			opacity: 0.6;
+			cursor: default;
+		}
+
 		&.undoing {
 			background: #f14668;
 			color: #fff;
 			cursor: default;
+		}
+	}
+
+	footer {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		margin: 35px 0;
+		text-align: center;
+
+		button {
+			background: #fff;
+			border: 2px solid #555;
+			border-radius: 10px;
+			padding: 5px 15px;
+			font-size: 18px;
+			text-align: center;
+			color: #555;
+			cursor: pointer;
+		}
+
+		a {
+			background: #fff;
+			border: 2px solid #555;
+			border-radius: 10px;
+			padding: 5px 15px;
+			font-size: 18px;
+			text-align: center;
+			text-decoration: none;
+			color: #555;
+			cursor: pointer;
 		}
 	}
 

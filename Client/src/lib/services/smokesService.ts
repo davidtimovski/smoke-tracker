@@ -3,6 +3,7 @@ import Database from './database';
 import { v4 as uuidv4 } from 'uuid';
 import type AuthService from './authService';
 import type SyncService from './syncService';
+import type ISmoke from '$lib/models/iSmoke';
 
 export default class SmokesService {
 	private readonly baseUri = 'http://localhost:5100/';
@@ -63,16 +64,23 @@ export default class SmokesService {
 
 		synced.set(false);
 
-		const lastSmoke = (await this.db.smokes.reverse().sortBy('date'))[0];
-		await this.db.smokes.delete(lastSmoke.id);
-		await this.db.unsyncedChanges.delete(lastSmoke.id);
+		const todaysSmokes = await this.getTodaysSmokes();
+		const lastSmokeToday = todaysSmokes.sort((a: ISmoke, b: ISmoke) => {
+			if (a.date < b.date) return -1;
+			if (a.date > b.date) return 1;
+
+			return 0;
+		})[0];
+
+		await this.db.smokes.delete(lastSmokeToday.id);
+		await this.db.unsyncedChanges.delete(lastSmokeToday.id);
 
 		if (!navigator.onLine || !this.authService.loggedIn) {
 			await this.syncService.checkSync();
 			return;
 		}
 
-		const response = await fetch(this.baseUri + `api/smokes?ids=${lastSmoke.id}`, {
+		const response = await fetch(this.baseUri + `api/smokes?id=${lastSmokeToday.id}`, {
 			method: 'delete',
 			headers: new Headers({
 				Accept: 'application/json',
@@ -82,7 +90,7 @@ export default class SmokesService {
 		});
 
 		if (response.status !== 204) {
-			await this.syncService.addUnsyncedChange(lastSmoke.id, 2);
+			await this.syncService.addUnsyncedChange(lastSmokeToday.id, 2);
 			return;
 		}
 

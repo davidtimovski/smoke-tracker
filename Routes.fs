@@ -21,7 +21,7 @@ let webApp : HttpHandler =
             ]
         DELETE >=>
             choose [
-                route "/api/smokes" >=> authorize >=> deleteSmokesHandler
+                route "/api/smokes" >=> authorize >=> deleteSmokeHandler
             ]
         setStatusCode 404 >=> text "Not Found" ]
 

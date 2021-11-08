@@ -35,28 +35,23 @@ let createSmokesHandler: HttpHandler =
             return! next ctx
         }
 
-let deleteSmokesHandler: HttpHandler =
+let deleteSmokeHandler: HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
-        task {
-            let userId = getCurrentUserId ctx
+        let userId = getCurrentUserId ctx
 
-            let dto = ctx.BindQueryString<DeleteSmokesDto>()
+        let dto = ctx.BindQueryString<DeleteSmokeDto>()
 
-            let db = ctx.GetService<SmokeTrackerContext>()
+        let db = ctx.GetService<SmokeTrackerContext>()
 
-            let smokes =
-                db
-                    .Smokes
-                    .Where(fun x -> dto.Ids.Contains(x.Id) && x.UserId = userId)
-                    .ToList()
+        let smoke =
+            db.Smokes.First(fun x -> dto.Id = x.Id && x.UserId = userId)
 
-            db.Smokes.RemoveRange(smokes)
-            db.SaveChanges() |> ignore
+        db.Smokes.Remove(smoke) |> ignore
+        db.SaveChanges() |> ignore
 
-            ctx.SetStatusCode 204
+        ctx.SetStatusCode 204
 
-            return! next ctx
-        }
+        next ctx
 
 let syncSmokesHandler: HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
@@ -89,10 +84,15 @@ let syncSmokesHandler: HttpHandler =
 
             db.Smokes.AddRange(updatedSmokes) |> ignore
 
-            let smokesToDelete = db.Smokes.Where(fun x -> smokeSync.Deleted.Contains(x.Id)).ToArray()
+            let smokesToDelete =
+                db
+                    .Smokes
+                    .Where(fun x -> smokeSync.Deleted.Contains(x.Id))
+                    .ToArray()
+
             for smoke in smokesToDelete do
                 db.Smokes.Remove(smoke) |> ignore
-            
+
             db.SaveChanges() |> ignore
 
             ctx.SetStatusCode 201

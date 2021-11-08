@@ -11,7 +11,7 @@
 
 <style lang="scss">
 	header {
-		padding: 20px 10px;
+		padding: 25px 10px;
 		margin-bottom: 20px;
 	}
 

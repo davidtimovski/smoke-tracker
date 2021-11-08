@@ -3,25 +3,25 @@ import type RegisterResult from '$lib/models/registerResult';
 
 export default class AuthService {
 	private readonly baseUri = 'http://localhost:5100/';
-	private expires: Date;
-	public token: string;
+	private expires: Date = null;
+	private loginCheckInterval: number;
+	public token: string = null;
 	public hasAccount: boolean;
 
 	constructor() {
-		const expiresItem = window.localStorage.getItem('expires');
-		if (expiresItem) {
-			this.hasAccount = true;
+		const tokenExpires = window.localStorage.getItem('expires');
+		this.hasAccount = tokenExpires !== null;
 
-			const expires = new Date(window.parseInt(expiresItem, 10));
+		if (tokenExpires) {
+			const expires = new Date(window.parseInt(tokenExpires, 10));
 			if (expires > new Date()) {
 				this.expires = expires;
 				this.token = window.localStorage.getItem('token');
+
+				this.setupLoginCheck();
 			} else {
-				window.localStorage.setItem('token', '');
-				window.localStorage.setItem('expires', '');
+				this.logout();
 			}
-		} else {
-			this.hasAccount = false;
 		}
 	}
 
@@ -56,6 +56,8 @@ export default class AuthService {
 
 			window.localStorage.setItem('token', result.token);
 			window.localStorage.setItem('expires', expires.toString());
+
+			this.setupLoginCheck();
 		}
 
 		return result;
@@ -90,5 +92,23 @@ export default class AuthService {
 		});
 
 		return <RegisterResult>await response.json();
+	}
+
+	public logout() {
+		window.localStorage.setItem('token', '');
+		window.localStorage.setItem('expires', '');
+
+		this.token = this.expires = null;
+
+		window.clearInterval(this.loginCheckInterval);
+		this.loginCheckInterval = null;
+	}
+
+	private setupLoginCheck() {
+		this.loginCheckInterval = window.setInterval(() => {
+			if (this.expires < new Date()) {
+				this.logout();
+			}
+		}, 5000);
 	}
 }

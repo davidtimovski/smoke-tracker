@@ -10,7 +10,7 @@ type SmokeDto =
       Date: DateTime }
 
 [<CLIMutable>]
-type DeleteSmokesDto = { Ids: Guid [] }
+type DeleteSmokeDto = { Id: Guid }
 
 [<CLIMutable>]
 type SmokesSync = 
