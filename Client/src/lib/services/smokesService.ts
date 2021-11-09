@@ -4,9 +4,9 @@ import { v4 as uuidv4 } from 'uuid';
 import type AuthService from './authService';
 import type SyncService from './syncService';
 import type ISmoke from '$lib/models/iSmoke';
+import Variables from '$lib/variables';
 
 export default class SmokesService {
-	private readonly baseUri = 'http://localhost:5100/';
 	private db: Database;
 	private readonly authService: AuthService;
 	private readonly syncService: SyncService;
@@ -38,7 +38,7 @@ export default class SmokesService {
 			return;
 		}
 
-		const response = await fetch(this.baseUri + 'api/smokes', {
+		const response = await fetch(Variables.baseUri + 'smokes', {
 			method: 'post',
 			body: JSON.stringify([smoke]),
 			headers: new Headers({
@@ -80,7 +80,7 @@ export default class SmokesService {
 			return;
 		}
 
-		const response = await fetch(this.baseUri + `api/smokes?id=${lastSmokeToday.id}`, {
+		const response = await fetch(Variables.baseUri + `smokes?id=${lastSmokeToday.id}`, {
 			method: 'delete',
 			headers: new Headers({
 				Accept: 'application/json',

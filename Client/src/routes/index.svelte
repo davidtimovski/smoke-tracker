@@ -163,13 +163,9 @@
 		<span class="smoke-count">{todaysHeets}</span>
 	</div>
 
-	<button
-		type="button"
-		on:click={undoLastSmoke}
-		disabled={todaysSmokesSum === 0}
-		class="undo-smoke-button"
-		class:undoing>{undoButtonLabel}</button
-	>
+	{#if todaysSmokesSum > 0}
+		<button type="button" on:click={undoLastSmoke} class="undo-smoke-button" class:undoing>{undoButtonLabel}</button>
+	{/if}
 
 	<footer>
 		{#if loggedIn === true}
@@ -250,11 +246,6 @@
 		cursor: pointer;
 		transition: background 200ms ease-out, color 200ms ease-out;
 
-		&:disabled {
-			opacity: 0.6;
-			cursor: default;
-		}
-
 		&.undoing {
 			background: #f14668;
 			color: #fff;
@@ -289,6 +280,7 @@
 			font-size: 18px;
 			text-align: center;
 			text-decoration: none;
+			user-select: none;
 			color: #555;
 			cursor: pointer;
 		}

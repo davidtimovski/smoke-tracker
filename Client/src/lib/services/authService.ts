@@ -1,8 +1,8 @@
 import type LoginResult from '$lib/models/loginResult';
 import type RegisterResult from '$lib/models/registerResult';
+import Variables from '$lib/variables';
 
 export default class AuthService {
-	private readonly baseUri = 'http://localhost:5100/';
 	private expires: Date = null;
 	private loginCheckInterval: number;
 	public token: string = null;
@@ -34,7 +34,7 @@ export default class AuthService {
 	}
 
 	public async login(username: string, password: string) {
-		const response = await fetch(this.baseUri + 'api/token', {
+		const response = await fetch(Variables.baseUri + 'token', {
 			method: 'post',
 			body: JSON.stringify({
 				username: username,
@@ -68,7 +68,7 @@ export default class AuthService {
 			return true;
 		}
 
-		const response = await fetch(this.baseUri + `api/username-available/${username}`, {
+		const response = await fetch(Variables.baseUri + `username-available/${username}`, {
 			headers: new Headers({
 				Accept: 'application/json',
 				'X-Requested-With': 'Fetch'
@@ -79,7 +79,7 @@ export default class AuthService {
 	}
 
 	public async register(username: string, password: string) {
-		const response = await fetch(this.baseUri + 'api/register', {
+		const response = await fetch(Variables.baseUri + 'register', {
 			method: 'post',
 			body: JSON.stringify({
 				username: username,

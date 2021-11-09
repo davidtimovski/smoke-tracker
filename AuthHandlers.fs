@@ -19,8 +19,8 @@ let private bind switchFunction twoTrackInput =
     | Success s -> switchFunction s
     | Failure f -> Failure f
 
-let private usernameMax25Chars (model : RegisterDto) =
-    if model.Username.Length > 25 then Failure "Username cannot be longer than 25 characters."
+let private usernameBetween3and25Chars (model : RegisterDto) =
+    if model.Username.Length < 3 || model.Username.Length > 25 then Failure "Username has to be between 3 and 25 characters."
     else Success model
 
 let private passwordAtLeast8Chars (model : RegisterDto) =
@@ -28,7 +28,7 @@ let private passwordAtLeast8Chars (model : RegisterDto) =
     else Success model
 
 let private validateRegisterModel =
-    usernameMax25Chars
+    usernameBetween3and25Chars
     >> bind passwordAtLeast8Chars
 
 let userNameAvailableHandler (userName: string) : HttpHandler =

@@ -8,21 +8,26 @@
 	import AuthService from '$lib/services/authService';
 
 	let username = '';
+	let checkingUsername = false;
 	let usernameIsTaken = false;
 	let password = '';
+	let passwordConfirm = '';
 
 	let authService: AuthService;
 
 	let timer: number;
 	const checkUsernameAvailability = () => {
-		if (!authService) {
+		if (!authService || username.trim().length < 3) {
 			return;
 		}
 
-		clearTimeout(timer);
+		checkingUsername = true;
+
+		window.clearTimeout(timer);
 		timer = window.setTimeout(() => {
 			authService.checkIfUsernameAvailable(username).then((available) => {
 				usernameIsTaken = !available;
+				checkingUsername = false;
 			});
 		}, 800);
 	};
@@ -50,14 +55,22 @@
 			registrationErrorMessage = 'Username is required.';
 			return;
 		}
-		if (password.trim() === '') {
+		if (password === '') {
 			registrationErrorMessage = 'Password is required.';
+			return;
+		}
+		if (passwordConfirm === '') {
+			registrationErrorMessage = 'Confirm password is required.';
+			return;
+		}
+		if (password !== passwordConfirm) {
+			registrationErrorMessage = 'Passwords must match.';
 			return;
 		}
 
 		const result = await authService.register(username, password);
 		if (result.success) {
-			goto('login');
+			goto('/login');
 		} else {
 			password = '';
 			registrationErrorMessage = result.message;
@@ -98,8 +111,17 @@
 			<input type="password" id="password" bind:value={password} />
 		</div>
 
+		<div class="form-control">
+			<label for="password-confirm">Confirm password</label>
+			<input type="password" id="password-confirm" bind:value={passwordConfirm} />
+		</div>
+
 		<div class="form-control submit">
-			<input type="submit" value="Register" disabled={!authService || offline === true || usernameIsTaken} />
+			<input
+				type="submit"
+				value="Register"
+				disabled={!authService || offline === true || username.trim().length < 3 || checkingUsername || usernameIsTaken}
+			/>
 		</div>
 	</form>
 </section>

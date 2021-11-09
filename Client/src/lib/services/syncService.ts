@@ -2,9 +2,9 @@ import { synced } from '$lib/stores';
 import type AuthService from './authService';
 import Database from './database';
 import SmokesSync from '$lib/models/smokesSync';
+import Variables from '$lib/variables';
 
 export default class SyncService {
-	private readonly baseUri = 'http://localhost:5100/';
 	private db: Database;
 	private readonly authService: AuthService;
 
@@ -48,7 +48,7 @@ export default class SyncService {
 
 		await Promise.all([newSmokesPromise, updatedSmokesPromise]);
 
-		const response = await fetch(this.baseUri + 'api/smokes/sync', {
+		const response = await fetch(Variables.baseUri + 'smokes/sync', {
 			method: 'post',
 			body: JSON.stringify(smokesSync),
 			headers: new Headers({
