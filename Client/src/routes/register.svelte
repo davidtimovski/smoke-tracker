@@ -79,7 +79,7 @@
 </script>
 
 <svelte:head>
-	<title>Register</title>
+	<title>Smoke Tracker - Register</title>
 </svelte:head>
 
 <section>

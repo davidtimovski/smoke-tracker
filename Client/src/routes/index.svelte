@@ -118,7 +118,7 @@
 </script>
 
 <svelte:head>
-	<title>Home</title>
+	<title>Smoke Tracker</title>
 </svelte:head>
 
 {#if hasAccount === true && loggedIn === false}

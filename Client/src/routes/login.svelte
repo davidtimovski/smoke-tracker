@@ -50,7 +50,7 @@
 </script>
 
 <svelte:head>
-	<title>Login</title>
+	<title>Smoke Tracker - Login</title>
 </svelte:head>
 
 <section>
