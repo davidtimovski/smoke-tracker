@@ -1,10 +1,8 @@
-<script context="module">
-</script>
-
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { slide } from 'svelte/transition';
+	import { online } from '../lib/stores';
 	import AuthService from '$lib/services/authService';
 
 	let username = '';
@@ -32,17 +30,6 @@
 		}, 800);
 	};
 
-	let offline: boolean;
-	onMount(async () => {
-		authService = new AuthService();
-
-		if (authService.loggedIn) {
-			await goto('/');
-		} else {
-			offline = !navigator.onLine;
-		}
-	});
-
 	let registrationErrorMessage: string;
 	async function register() {
 		if (!authService) {
@@ -51,7 +38,8 @@
 
 		registrationErrorMessage = null;
 
-		if (username.trim() === '') {
+		const trimmedUsername = username.trim();
+		if (trimmedUsername === '') {
 			registrationErrorMessage = 'Username is required.';
 			return;
 		}
@@ -68,14 +56,22 @@
 			return;
 		}
 
-		const result = await authService.register(username, password);
+		const result = await authService.register(trimmedUsername, password);
 		if (result.success) {
-			goto('/login');
+			goto(`/login?u=${trimmedUsername}`);
 		} else {
 			password = '';
 			registrationErrorMessage = result.message;
 		}
 	}
+
+	onMount(async () => {
+		authService = new AuthService();
+
+		if (authService.loggedIn) {
+			await goto('/');
+		}
+	});
 </script>
 
 <svelte:head>
@@ -83,8 +79,8 @@
 </svelte:head>
 
 <section>
-	{#if offline === true}
-		<div in:slide class="warning-alert">You must be online in order to register.</div>
+	{#if $online === false}
+		<div in:slide class="alert warning">You must be online in order to register.</div>
 	{/if}
 
 	{#if registrationErrorMessage}
@@ -117,10 +113,15 @@
 		</div>
 
 		<div class="form-control submit">
+			<a href="/">Back</a>
 			<input
 				type="submit"
 				value="Register"
-				disabled={!authService || offline === true || username.trim().length < 3 || checkingUsername || usernameIsTaken}
+				disabled={!authService ||
+					$online === false ||
+					username.trim().length < 3 ||
+					checkingUsername ||
+					usernameIsTaken}
 			/>
 		</div>
 	</form>

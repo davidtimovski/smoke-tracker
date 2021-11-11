@@ -1,26 +1,20 @@
-<script context="module">
-</script>
-
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { slide } from 'svelte/transition';
+	import { online } from '../lib/stores';
 	import AuthService from '$lib/services/authService';
 
 	let username = '';
 	let password = '';
+	let registrationRedirect = false;
 
-	let offline: boolean;
-	let authService: AuthService;
-	onMount(async () => {
-		authService = new AuthService();
-
-		if (authService.loggedIn) {
-			await goto('/');
-		} else {
-			offline = !navigator.onLine;
-		}
-	});
+	const queryUsername = $page.query.get('u');
+	if (queryUsername) {
+		username = queryUsername;
+		registrationRedirect = true;
+	}
 
 	let invalidLoginMessage: string;
 	async function login() {
@@ -47,6 +41,15 @@
 			invalidLoginMessage = result.message;
 		}
 	}
+
+	let authService: AuthService;
+	onMount(async () => {
+		authService = new AuthService();
+
+		if (authService.loggedIn) {
+			await goto('/');
+		}
+	});
 </script>
 
 <svelte:head>
@@ -54,8 +57,12 @@
 </svelte:head>
 
 <section>
-	{#if offline === true}
-		<div in:slide class="warning-alert">You must be online in order to login.</div>
+	{#if $online === false}
+		<div in:slide class="alert warning">You must be online in order to login.</div>
+	{/if}
+
+	{#if registrationRedirect}
+		<div in:slide class="alert success">Your registration was completed.<br />You can now log in.</div>
 	{/if}
 
 	{#if invalidLoginMessage}
@@ -74,7 +81,8 @@
 		</div>
 
 		<div class="form-control submit">
-			<input type="submit" value="Login" disabled={!authService || offline === true} />
+			<a href="/">Back</a>
+			<input type="submit" value="Login" disabled={!authService || $online === false} />
 		</div>
 	</form>
 </section>

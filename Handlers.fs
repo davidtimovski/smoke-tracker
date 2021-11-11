@@ -1,7 +1,6 @@
 module SmokeTracker.Handlers
 
 open Microsoft.AspNetCore.Http
-open Microsoft.EntityFrameworkCore
 open Giraffe
 open SmokeTracker.Data
 open FSharp.Control.Tasks
@@ -10,24 +9,20 @@ open Entities
 open SmokeTracker.Models
 open AuthHandlers
 
-let createSmokesHandler: HttpHandler =
+let createSmokeHandler: HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
         task {
             let userId = getCurrentUserId ctx
 
-            let! smokeDtos = ctx.BindJsonAsync<seq<SmokeDto>>()
+            let! smokeDto = ctx.BindJsonAsync<SmokeDto>()
 
-            let smokes =
-                smokeDtos
-                |> Seq.map
-                    (fun x ->
-                        { Id = x.Id
+            let smoke = { Id = smokeDto.Id
                           UserId = userId
-                          Type = x.Type
-                          Date = x.Date })
+                          Type = smokeDto.Type
+                          Date = smokeDto.Date }
 
             let db = ctx.GetService<SmokeTrackerContext>()
-            db.Smokes.AddRange(smokes) |> ignore
+            db.Smokes.Add(smoke) |> ignore
             db.SaveChanges() |> ignore
 
             ctx.SetStatusCode 201

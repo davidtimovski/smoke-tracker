@@ -40,7 +40,7 @@ export default class SmokesService {
 
 		const response = await fetch(Variables.baseUri + 'smokes', {
 			method: 'post',
-			body: JSON.stringify([smoke]),
+			body: JSON.stringify(smoke),
 			headers: new Headers({
 				Accept: 'application/json',
 				Authorization: 'Bearer ' + this.authService.token,

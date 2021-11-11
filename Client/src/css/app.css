@@ -12,6 +12,10 @@ html {
 	color: var(--gray-color);
 }
 
+a {
+	color: #1e6eb0;
+}
+
 form label {
 	display: block;
 	margin-bottom: 5px;
@@ -22,8 +26,21 @@ form label {
 }
 
 .form-control.submit {
+	display: flex;
+	justify-content: space-between;
 	margin-top: 25px;
 	text-align: right;
+}
+.form-control.submit a {
+	display: inline-block;
+	background: #fff;
+	border: 2px solid #00d1b2;
+	border-radius: 5px;
+	outline: none;
+	padding: 6px 15px;
+	text-decoration: none;
+	user-select: none;
+	color: #00d1b2;
 }
 
 .form-control input[type='text'],
@@ -33,14 +50,17 @@ form label {
 	border-radius: 5px;
 	outline: none;
 	padding: 3px 8px;
+	font-size: inherit;
+	line-height: inherit;
 }
 
 .form-control input[type='submit'] {
 	background: #00d1b2;
-	border: 1px solid #00d1b2;
+	border: none;
 	border-radius: 5px;
 	outline: none;
 	padding: 6px 15px;
+	cursor: pointer;
 	color: #fff;
 }
 .form-control input[type='submit']:disabled {
@@ -56,11 +76,18 @@ form label {
 	font-size: 16px;
 }
 
-.warning-alert {
-	background: #fec;
+.alert {
 	border-radius: 5px;
 	padding: 15px;
 	margin-top: 10%;
 	text-align: center;
 	font-size: 16px;
+}
+
+.alert.success {
+	background: #dfd;
+}
+
+.alert.warning {
+	background: #fec;
 }

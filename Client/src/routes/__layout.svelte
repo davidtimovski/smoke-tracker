@@ -1,6 +1,20 @@
 <script lang="ts">
 	import '../css/modern-normalize.css';
 	import '../css/app.css';
+
+	import { onMount } from 'svelte';
+	import { online } from '../lib/stores';
+
+	onMount(() => {
+		online.set(navigator.onLine);
+
+		window.addEventListener('online', () => {
+			online.set(true);
+		});
+		window.addEventListener('offline', () => {
+			online.set(false);
+		});
+	});
 </script>
 
 <main>
@@ -23,7 +37,7 @@
 		}
 
 		.container {
-			width: auto;
+			width: 400px;
 		}
 	}
 </style>

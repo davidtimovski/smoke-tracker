@@ -1,7 +1,3 @@
-<script context="module" lang="ts">
-	export const prerender = true;
-</script>
-
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
@@ -12,6 +8,8 @@
 
 	let loggedIn: boolean;
 	let hasAccount: boolean;
+
+	const creationMs = 1500;
 
 	let todaysCigars = 0;
 	let todaysVapes = 0;
@@ -44,7 +42,7 @@
 
 		window.setTimeout(() => {
 			creatingCigar = false;
-		}, 2000);
+		}, creationMs);
 	}
 
 	let creatingVape = false;
@@ -60,7 +58,7 @@
 
 		window.setTimeout(() => {
 			creatingVape = false;
-		}, 2000);
+		}, creationMs);
 	}
 
 	let creatingHeet = false;
@@ -76,7 +74,7 @@
 
 		window.setTimeout(() => {
 			creatingHeet = false;
-		}, 2000);
+		}, creationMs);
 	}
 
 	let undoButtonLabel = 'Undo last';
@@ -95,7 +93,7 @@
 		window.setTimeout(() => {
 			undoButtonLabel = 'Undo last';
 			undoing = false;
-		}, 2000);
+		}, creationMs);
 	}
 
 	function logout() {
@@ -122,8 +120,8 @@
 </svelte:head>
 
 {#if hasAccount === true && loggedIn === false}
-	<div in:slide class="warning-alert">
-		You're not logged in currently. <a sveltekit:prefetch href="/login">Log back in</a> if you want your changes to be synced.
+	<div in:slide class="alert warning">
+		You're not logged in currently.<br /><a href="/login">Log back in</a> if you want your changes to be synced.
 	</div>
 {/if}
 
@@ -171,13 +169,19 @@
 		{#if loggedIn === true}
 			<button type="button" on:click={logout}>Logout</button>
 		{:else if hasAccount === false}
-			<a sveltekit:prefetch href="/register">Register</a>
+			<a href="/register">Register</a>
 		{/if}
 	</footer>
 </section>
 
 <style lang="scss">
+	section {
+		text-align: center;
+	}
+
 	.create-smoke-button {
+		display: inline-block;
+		width: 80%;
 		height: 80px;
 		border: 2px solid;
 		border-radius: 10px;
@@ -190,7 +194,7 @@
 		transition: background 300ms ease-out, color 300ms ease-out, font-size 300ms;
 
 		&.creating {
-			font-size: 46px;
+			font-size: 50px;
 			cursor: default;
 		}
 
@@ -233,11 +237,10 @@
 	}
 
 	.undo-smoke-button {
-		width: 100%;
 		background: #fff;
 		border: 2px solid #f14668;
 		border-radius: 10px;
-		padding: 15px;
+		padding: 10px 25px;
 		margin-top: 30px;
 		font-size: 22px;
 		user-select: none;
@@ -286,10 +289,9 @@
 		}
 	}
 
-	@media screen and (min-width: 600px) {
-		.create-smoke-button,
-		.undo-smoke-button {
-			width: 250px;
-		}
-	}
+	// @media screen and (min-width: 600px) {
+	// 	.create-smoke-button {
+	// 		width: 250px;
+	// 	}
+	// }
 </style>

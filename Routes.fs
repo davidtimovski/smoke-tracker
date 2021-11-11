@@ -17,7 +17,7 @@ let webApp : HttpHandler =
                 route "/register" >=> registerHandler
                 route "/token" >=> tokenHandler
                 route "/smokes/sync" >=> authorize >=> syncSmokesHandler
-                route "/smokes" >=> authorize >=> createSmokesHandler
+                route "/smokes" >=> authorize >=> createSmokeHandler
             ]
         DELETE >=>
             choose [
