@@ -69,7 +69,7 @@ export default class SyncService {
 		synced.set(true);
 	}
 
-	public async checkSync() {
+	public async check() {
 		const unsyncedChangesCount = await this.db.unsyncedChanges.count();
 		synced.set(unsyncedChangesCount === 0);
 	}

@@ -5,13 +5,15 @@
 	import { online } from '../lib/stores';
 	import AuthService from '$lib/services/authService';
 
+	let authService: AuthService;
+
 	let username = '';
 	let checkingUsername = false;
 	let usernameIsTaken = false;
 	let password = '';
 	let passwordConfirm = '';
-
-	let authService: AuthService;
+	$: registerButtonDisabled =
+		!authService || $online === false || username.trim().length < 3 || checkingUsername || usernameIsTaken;
 
 	let timer: number;
 	const checkUsernameAvailability = () => {
@@ -36,23 +38,28 @@
 			return;
 		}
 
+		registerButtonDisabled = true;
 		registrationErrorMessage = null;
 
 		const trimmedUsername = username.trim();
 		if (trimmedUsername === '') {
 			registrationErrorMessage = 'Username is required.';
+			registerButtonDisabled = false;
 			return;
 		}
 		if (password === '') {
 			registrationErrorMessage = 'Password is required.';
+			registerButtonDisabled = false;
 			return;
 		}
 		if (passwordConfirm === '') {
 			registrationErrorMessage = 'Confirm password is required.';
+			registerButtonDisabled = false;
 			return;
 		}
 		if (password !== passwordConfirm) {
 			registrationErrorMessage = 'Passwords must match.';
+			registerButtonDisabled = false;
 			return;
 		}
 
@@ -60,8 +67,9 @@
 		if (result.success) {
 			goto(`/login?u=${trimmedUsername}`);
 		} else {
-			password = '';
+			password = passwordConfirm = '';
 			registrationErrorMessage = result.message;
+			registerButtonDisabled = false;
 		}
 	}
 
@@ -114,15 +122,7 @@
 
 		<div class="form-control submit">
 			<a href="/">Back</a>
-			<input
-				type="submit"
-				value="Register"
-				disabled={!authService ||
-					$online === false ||
-					username.trim().length < 3 ||
-					checkingUsername ||
-					usernameIsTaken}
-			/>
+			<input type="submit" value="Register" disabled={registerButtonDisabled} />
 		</div>
 	</form>
 </section>

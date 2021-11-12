@@ -73,7 +73,14 @@ let registerHandler =
                     let errorMessage =
                         match invalidUsername with
                         | true -> "Username can only contain alphanumeric characters or '-', '.', and '_'."
-                        | false -> "Invalid registration."
+                        | false -> 
+                            let duplicateUserName = 
+                                result.Errors
+                                |> Seq.exists (fun x -> x.Code = "DuplicateUserName")
+
+                            match duplicateUserName with
+                            | true -> "Username is already taken."
+                            | false -> "Invalid registration."                        
 
                     let result = {
                         Success = false

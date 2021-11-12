@@ -14,7 +14,7 @@
 	let todaysCigars = 0;
 	let todaysVapes = 0;
 	let todaysHeets = 0;
-	let todaysSmokesSum = 0;
+	$: todaysSmokesSum = todaysCigars + todaysVapes + todaysHeets;
 
 	let authService: AuthService;
 	let smokesService: SmokesService;
@@ -24,8 +24,6 @@
 			todaysCigars = smokes.filter((x) => x.type === 0).length;
 			todaysVapes = smokes.filter((x) => x.type === 1).length;
 			todaysHeets = smokes.filter((x) => x.type === 2).length;
-
-			todaysSmokesSum = todaysCigars + todaysVapes + todaysHeets;
 		});
 	}
 
@@ -36,9 +34,8 @@
 		}
 
 		creatingCigar = true;
+		todaysCigars++;
 		await smokesService.createSmoke(0);
-
-		load();
 
 		window.setTimeout(() => {
 			creatingCigar = false;
@@ -52,9 +49,8 @@
 		}
 
 		creatingVape = true;
+		todaysVapes++;
 		await smokesService.createSmoke(1);
-
-		load();
 
 		window.setTimeout(() => {
 			creatingVape = false;
@@ -68,19 +64,18 @@
 		}
 
 		creatingHeet = true;
+		todaysHeets++;
 		await smokesService.createSmoke(2);
-
-		load();
 
 		window.setTimeout(() => {
 			creatingHeet = false;
 		}, creationMs);
 	}
 
-	let undoButtonLabel = 'Undo last';
+	let undoButtonLabel = 'Undo';
 	let undoing = false;
-	async function undoLastSmoke() {
-		if (undoing) {
+	async function undo() {
+		if (creatingCigar || creatingVape || creatingHeet || undoing) {
 			return;
 		}
 
@@ -91,7 +86,7 @@
 
 		undoButtonLabel = 'Undone!';
 		window.setTimeout(() => {
-			undoButtonLabel = 'Undo last';
+			undoButtonLabel = 'Undo';
 			undoing = false;
 		}, creationMs);
 	}
@@ -162,7 +157,7 @@
 	</div>
 
 	{#if todaysSmokesSum > 0}
-		<button type="button" on:click={undoLastSmoke} class="undo-smoke-button" class:undoing>{undoButtonLabel}</button>
+		<button type="button" on:click={undo} class="undo-smoke-button" class:undoing>{undoButtonLabel}</button>
 	{/if}
 
 	<footer>
@@ -240,7 +235,7 @@
 		background: #fff;
 		border: 2px solid #f14668;
 		border-radius: 10px;
-		padding: 10px 25px;
+		padding: 8px 25px;
 		margin-top: 30px;
 		font-size: 22px;
 		user-select: none;
@@ -271,6 +266,7 @@
 			padding: 5px 15px;
 			font-size: 18px;
 			text-align: center;
+			user-select: none;
 			color: #555;
 			cursor: pointer;
 		}
@@ -288,10 +284,4 @@
 			cursor: pointer;
 		}
 	}
-
-	// @media screen and (min-width: 600px) {
-	// 	.create-smoke-button {
-	// 		width: 250px;
-	// 	}
-	// }
 </style>

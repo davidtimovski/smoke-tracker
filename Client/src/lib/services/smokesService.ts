@@ -53,7 +53,7 @@ export default class SmokesService {
 			return;
 		}
 
-		synced.set(true);
+		await this.syncService.check();
 	}
 
 	public async undoLastCreate() {
@@ -66,8 +66,8 @@ export default class SmokesService {
 
 		const todaysSmokes = await this.getTodaysSmokes();
 		const lastSmokeToday = todaysSmokes.sort((a: ISmoke, b: ISmoke) => {
-			if (a.date < b.date) return -1;
-			if (a.date > b.date) return 1;
+			if (a.date > b.date) return -1;
+			if (a.date < b.date) return 1;
 
 			return 0;
 		})[0];
@@ -76,7 +76,7 @@ export default class SmokesService {
 		await this.db.unsyncedChanges.delete(lastSmokeToday.id);
 
 		if (!navigator.onLine || !this.authService.loggedIn) {
-			await this.syncService.checkSync();
+			await this.syncService.check();
 			return;
 		}
 
@@ -94,11 +94,11 @@ export default class SmokesService {
 			return;
 		}
 
-		synced.set(true);
+		await this.syncService.check();
 	}
 
 	private dateIsToday(date: Date) {
 		const today = new Date().setHours(0, 0, 0, 0);
-		return date.setHours(0, 0, 0, 0) === today;
+		return new Date(date).setHours(0, 0, 0, 0) === today;
 	}
 }

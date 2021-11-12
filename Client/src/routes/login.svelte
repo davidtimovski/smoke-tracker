@@ -6,9 +6,12 @@
 	import { online } from '../lib/stores';
 	import AuthService from '$lib/services/authService';
 
+	let authService: AuthService;
+
 	let username = '';
 	let password = '';
 	let registrationRedirect = false;
+	$: loginButtonDisabled = !authService || $online === false;
 
 	const queryUsername = $page.query.get('u');
 	if (queryUsername) {
@@ -22,14 +25,17 @@
 			return;
 		}
 
+		loginButtonDisabled = true;
 		invalidLoginMessage = null;
 
 		if (username.trim() === '') {
 			invalidLoginMessage = 'Username is required.';
+			loginButtonDisabled = false;
 			return;
 		}
 		if (password.trim() === '') {
 			invalidLoginMessage = 'Password is required.';
+			loginButtonDisabled = false;
 			return;
 		}
 
@@ -39,10 +45,10 @@
 		} else {
 			password = '';
 			invalidLoginMessage = result.message;
+			loginButtonDisabled = false;
 		}
 	}
 
-	let authService: AuthService;
 	onMount(async () => {
 		authService = new AuthService();
 
@@ -82,7 +88,7 @@
 
 		<div class="form-control submit">
 			<a href="/">Back</a>
-			<input type="submit" value="Login" disabled={!authService || $online === false} />
+			<input type="submit" value="Login" disabled={loginButtonDisabled} />
 		</div>
 	</form>
 </section>
