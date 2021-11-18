@@ -3,4 +3,5 @@ export default class LoginResult {
 	public message: string;
 	public token: string;
 	public expiresIn: number;
+	public username: string;
 }

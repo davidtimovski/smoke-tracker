@@ -6,6 +6,7 @@ export default class AuthService {
 	private expires: Date = null;
 	private loginCheckInterval: number;
 	public token: string = null;
+	public username: string = null;
 	public hasAccount: boolean;
 
 	constructor() {
@@ -17,6 +18,7 @@ export default class AuthService {
 			if (expires > new Date()) {
 				this.expires = expires;
 				this.token = window.localStorage.getItem('token');
+				this.username = window.localStorage.getItem('username');
 
 				this.setupLoginCheck();
 			} else {
@@ -56,6 +58,7 @@ export default class AuthService {
 
 			window.localStorage.setItem('token', result.token);
 			window.localStorage.setItem('expires', expires.toString());
+			window.localStorage.setItem('username', result.username);
 
 			this.setupLoginCheck();
 		}
@@ -97,8 +100,9 @@ export default class AuthService {
 	public logout() {
 		window.localStorage.setItem('token', '');
 		window.localStorage.setItem('expires', '');
+		window.localStorage.setItem('username', '');
 
-		this.token = this.expires = null;
+		this.expires = this.token = this.username = null;
 
 		window.clearInterval(this.loginCheckInterval);
 		this.loginCheckInterval = null;

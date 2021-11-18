@@ -12,7 +12,7 @@ type RegisterDto = { Username: string; Password: string }
 [<CLIMutable>]
 type LoginDto = { Username: string; Password: string }
 
-type TokenResult = { Success: bool; Token: string; ExpiresIn: int }
+type TokenResult = { Success: bool; Token: string; ExpiresIn: int; Username: string }
 
 type FailedLoginResult = { Success: bool; Message: string }
 

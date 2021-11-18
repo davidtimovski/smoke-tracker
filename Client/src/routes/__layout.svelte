@@ -4,12 +4,17 @@
 
 	import { onMount } from 'svelte';
 	import { online } from '../lib/stores';
+	import AuthService from '$lib/services/authService';
+	import SyncService from '$lib/services/syncService';
 
 	onMount(() => {
 		online.set(navigator.onLine);
 
+		const syncService = new SyncService(new AuthService());
+
 		window.addEventListener('online', () => {
 			online.set(true);
+			syncService.sync();
 		});
 		window.addEventListener('offline', () => {
 			online.set(false);

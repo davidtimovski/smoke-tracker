@@ -7,6 +7,7 @@
 	import Header from './Header.svelte';
 
 	let loggedIn: boolean;
+	let username: string;
 	let hasAccount: boolean;
 
 	const creationMs = 1500;
@@ -94,12 +95,14 @@
 	function logout() {
 		authService.logout();
 		loggedIn = false;
+		username = null;
 	}
 
 	onMount(async () => {
 		authService = new AuthService();
 
 		loggedIn = authService.loggedIn;
+		username = authService.username;
 		hasAccount = authService.hasAccount;
 
 		const syncService = new SyncService(authService);
@@ -157,14 +160,19 @@
 	</div>
 
 	{#if todaysSmokesSum > 0}
-		<button type="button" on:click={undo} class="undo-smoke-button" class:undoing>{undoButtonLabel}</button>
+		<button type="button" transition:slide on:click={undo} class="undo-smoke-button" class:undoing
+			>{undoButtonLabel}</button
+		>
 	{/if}
 
 	<footer>
 		{#if loggedIn === true}
-			<button type="button" on:click={logout}>Logout</button>
+			<div class="logged-in-menu">
+				<div class="logged-in-menu-message">Hello, {username}</div>
+				<button type="button" in:slide on:click={logout}>Logout</button>
+			</div>
 		{:else if hasAccount === false}
-			<a href="/register">Register</a>
+			<a href="/register" in:slide>Register</a>
 		{/if}
 	</footer>
 </section>
@@ -259,13 +267,20 @@
 		margin: 35px 0;
 		text-align: center;
 
+		.logged-in-menu {
+			text-align: center;
+
+			&-message {
+				margin-bottom: 15px;
+			}
+		}
+
 		button {
 			background: #fff;
 			border: 2px solid #555;
 			border-radius: 10px;
 			padding: 5px 15px;
 			font-size: 18px;
-			text-align: center;
 			user-select: none;
 			color: #555;
 			cursor: pointer;

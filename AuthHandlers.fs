@@ -108,7 +108,7 @@ let authorize =
     fun (next: HttpFunc) (ctx: HttpContext) ->
         requiresAuthentication (challenge JwtBearerDefaults.AuthenticationScheme) next ctx
 
-let private generateToken (userId: int) (issuer: string) (audience: string) (secret: string) =
+let private generateToken (userId: int) (username: string) (issuer: string) (audience: string) (secret: string) =
     let claims =
         [| 
             Claim(JwtRegisteredClaimNames.Sub, userId.ToString())
@@ -141,6 +141,7 @@ let private generateToken (userId: int) (issuer: string) (audience: string) (sec
         Success = true
         Token = token
         ExpiresIn = tokenLastsMinutes
+        Username = username
     }
 
 let tokenHandler =
@@ -172,7 +173,7 @@ let tokenHandler =
                     let secret =
                         settings.GetValue<string>("Auth:SymmetricSecurityKey")
 
-                    let tokenResult = generateToken user.Id issuer audience secret
+                    let tokenResult = generateToken user.Id model.Username issuer audience secret
 
                     return! json tokenResult next ctx
                 | false ->

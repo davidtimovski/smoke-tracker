@@ -53,7 +53,7 @@ export default class SmokesService {
 			return;
 		}
 
-		await this.syncService.check();
+		await this.syncService.sync();
 	}
 
 	public async undoLastCreate() {
@@ -94,7 +94,7 @@ export default class SmokesService {
 			return;
 		}
 
-		await this.syncService.check();
+		await this.syncService.sync();
 	}
 
 	private dateIsToday(date: Date) {
