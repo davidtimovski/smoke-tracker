@@ -12,6 +12,7 @@
 	let password = '';
 	let registrationRedirect = false;
 	$: loginButtonDisabled = !authService || $online === false;
+	let loading = false;
 
 	const queryUsername = $page.query.get('u');
 	if (queryUsername) {
@@ -21,21 +22,21 @@
 
 	let invalidLoginMessage: string;
 	async function login() {
-		if (!authService) {
+		if (!authService || loginButtonDisabled) {
 			return;
 		}
 
-		loginButtonDisabled = true;
+		loading = true;
 		invalidLoginMessage = null;
 
 		if (username.trim() === '') {
 			invalidLoginMessage = 'Username is required.';
-			loginButtonDisabled = false;
+			loading = false;
 			return;
 		}
 		if (password.trim() === '') {
 			invalidLoginMessage = 'Password is required.';
-			loginButtonDisabled = false;
+			loading = false;
 			return;
 		}
 
@@ -45,7 +46,7 @@
 		} else {
 			password = '';
 			invalidLoginMessage = result.message;
-			loginButtonDisabled = false;
+			loading = false;
 		}
 	}
 
@@ -87,8 +88,17 @@
 		</div>
 
 		<div class="form-control submit">
-			<a href="/">Back</a>
-			<input type="submit" value="Login" disabled={loginButtonDisabled} />
+			<a href="/" class="link-button">Back</a>
+			<div
+				role="button"
+				on:click={login}
+				class="button-with-loader"
+				class:disabled={loginButtonDisabled || loading}
+				class:loading
+			>
+				Login
+				<div class="loader" />
+			</div>
 		</div>
 	</form>
 </section>

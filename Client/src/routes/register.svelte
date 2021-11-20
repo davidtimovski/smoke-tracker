@@ -14,6 +14,7 @@
 	let passwordConfirm = '';
 	$: registerButtonDisabled =
 		!authService || $online === false || username.trim().length < 3 || checkingUsername || usernameIsTaken;
+	let loading = false;
 
 	let timer: number;
 	const checkUsernameAvailability = () => {
@@ -38,28 +39,28 @@
 			return;
 		}
 
-		registerButtonDisabled = true;
+		loading = true;
 		registrationErrorMessage = null;
 
 		const trimmedUsername = username.trim();
 		if (trimmedUsername === '') {
 			registrationErrorMessage = 'Username is required.';
-			registerButtonDisabled = false;
+			loading = false;
 			return;
 		}
 		if (password === '') {
 			registrationErrorMessage = 'Password is required.';
-			registerButtonDisabled = false;
+			loading = false;
 			return;
 		}
 		if (passwordConfirm === '') {
 			registrationErrorMessage = 'Confirm password is required.';
-			registerButtonDisabled = false;
+			loading = false;
 			return;
 		}
 		if (password !== passwordConfirm) {
 			registrationErrorMessage = 'Passwords must match.';
-			registerButtonDisabled = false;
+			loading = false;
 			return;
 		}
 
@@ -69,7 +70,7 @@
 		} else {
 			password = passwordConfirm = '';
 			registrationErrorMessage = result.message;
-			registerButtonDisabled = false;
+			loading = false;
 		}
 	}
 
@@ -106,7 +107,8 @@
 					on:keyup={() => checkUsernameAvailability()}
 					maxlength="25"
 				/>
-				<span class="availability-indicator">{usernameIsTaken ? 'taken' : ''}</span>
+				<span class="availability-loader" class:loading={checkingUsername}><div class="loader" /></span>
+				<span class="availability-indicator">{!checkingUsername && usernameIsTaken ? 'taken' : ''}</span>
 			</div>
 		</div>
 
@@ -121,8 +123,17 @@
 		</div>
 
 		<div class="form-control submit">
-			<a href="/">Back</a>
-			<input type="submit" value="Register" disabled={registerButtonDisabled} />
+			<a href="/" class="link-button">Back</a>
+			<div
+				role="button"
+				on:click={register}
+				class="button-with-loader"
+				class:disabled={registerButtonDisabled || loading}
+				class:loading
+			>
+				Register
+				<div class="loader" />
+			</div>
 		</div>
 	</form>
 </section>
@@ -137,6 +148,25 @@
 
 		input {
 			padding-right: 75px;
+		}
+
+		.availability-loader {
+			position: absolute;
+			top: 0;
+			right: 0;
+			padding: 4px 13px;
+
+			.loader {
+				display: none;
+
+				&:after {
+					border-color: #00d1b2 transparent #00d1b2 transparent;
+				}
+			}
+
+			&.loading .loader {
+				display: inline-block;
+			}
 		}
 
 		.availability-indicator {
