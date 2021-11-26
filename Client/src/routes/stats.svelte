@@ -4,17 +4,17 @@
 	import type Statistic from '$lib/models/statistic';
 	import Stat from '../components/stat.svelte';
 
-	let inThePastWeek: Statistic = null;
-	let inThePastMonth: Statistic = null;
+	let inThePastWeek: Statistic;
+	let inThePastMonth: Statistic;
 
-	onMount(async () => {
+	onMount(() => {
 		const statsService = new StatsService();
 
-		statsService.getSmokesFromThePastWeek().then((stats) => {
-			inThePastWeek = stats;
+		statsService.getSmokesFromThePastWeek().then((result) => {
+			inThePastWeek = result;
 		});
-		statsService.getSmokesFromThePastMonth().then((stats) => {
-			inThePastMonth = stats;
+		statsService.getSmokesFromThePastMonth().then((result) => {
+			inThePastMonth = result;
 		});
 	});
 </script>
@@ -23,33 +23,28 @@
 	<title>Smoke Tracker - Stats</title>
 </svelte:head>
 
-<section class="stats">
+<section class="page">
 	<div class="stat">
 		<div class="stat-title">In the past week</div>
-		<Stat stat={inThePastWeek} />
+		<Stat data={inThePastWeek} />
 	</div>
 
 	<div class="stat">
 		<div class="stat-title">In the past month</div>
-		<Stat stat={inThePastMonth} />
+		<Stat data={inThePastMonth} />
 	</div>
 
 	<a href="/" class="link-button">Back</a>
 </section>
 
 <style lang="scss">
-	.stats {
-		margin-top: 25%;
-		text-align: center;
+	.stat {
+		margin-bottom: 60px;
+		line-height: 32px;
+		font-size: 24px;
 
-		.stat {
-			margin-bottom: 60px;
-			line-height: 32px;
-			font-size: 24px;
-
-			&-title {
-				margin-bottom: 30px;
-			}
+		&-title {
+			margin-bottom: 30px;
 		}
 	}
 </style>

@@ -1,13 +1,18 @@
 <script lang="ts">
 	import { synced } from '../lib/stores';
+
+	$: syncLabel = $synced ? 'Synced with server' : "Some changes haven't been synced";
 </script>
 
 <header>
-	<div class="status-indicators">
+	<div class="status-indicators" title={syncLabel} aria-label={syncLabel}>
 		<div class="synced" class:inactive={!$synced} />
-		<div class="unsynced" class:inactive={$synced} />
+		<div class="not-synced" class:inactive={$synced} />
 	</div>
-	<a href="/stats" class="">Stats</a>
+	<nav>
+		<a href="/history">History</a>
+		<a href="/stats">Stats</a>
+	</nav>
 </header>
 
 <style lang="scss">
@@ -29,7 +34,7 @@
 				&.synced {
 					background: #48c78e;
 				}
-				&.unsynced {
+				&.not-synced {
 					background: #3e8ed0;
 					margin-left: 15px;
 				}
@@ -41,7 +46,8 @@
 		}
 	}
 
-	a {
+	nav a {
+		display: inline-block;
 		border: 2px solid #00d1b2;
 		border-radius: 5px;
 		padding: 3px 15px;

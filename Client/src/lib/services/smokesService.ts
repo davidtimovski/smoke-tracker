@@ -1,25 +1,41 @@
 import { synced } from '$lib/stores';
-import Database from './database';
 import { v4 as uuidv4 } from 'uuid';
+import DbService from './dbService';
+import { get } from 'svelte/store';
+import { todaysSmokes } from '../../lib/stores';
 import type AuthService from './authService';
 import type SyncService from './syncService';
-import type ISmoke from '$lib/models/iSmoke';
 import Variables from '$lib/variables';
+import DateUtil from '$lib/utils/dateUtil';
 
-export default class SmokesService {
-	private db: Database;
+export default class SmokesService extends DbService {
 	private readonly authService: AuthService;
 	private readonly syncService: SyncService;
 
 	constructor(authService: AuthService, syncService: SyncService) {
-		this.db = new Database();
-		this.db.open();
+		super();
+
 		this.authService = authService;
 		this.syncService = syncService;
 	}
 
 	public async getTodaysSmokes() {
-		return await this.db.smokes.filter((x) => this.dateIsToday(x.date)).toArray();
+		const today = new Date();
+		return await this.db.smokes.filter((x) => DateUtil.datesAreEqual(x.date, today)).toArray();
+	}
+
+	public async loadTodays() {
+		const todaysSmokesValue = get(todaysSmokes);
+		if (todaysSmokesValue.initialized) {
+			return;
+		}
+
+		this.getTodaysSmokes().then((smokes) => {
+			todaysSmokes.update((x) => {
+				x.initialize(smokes);
+				return x;
+			});
+		});
 	}
 
 	public async createSmoke(type: number) {
@@ -64,16 +80,28 @@ export default class SmokesService {
 
 		synced.set(false);
 
-		const todaysSmokes = await this.getTodaysSmokes();
-		const lastSmokeToday = todaysSmokes.sort((a: ISmoke, b: ISmoke) => {
-			if (a.date > b.date) return -1;
-			if (a.date < b.date) return 1;
-
-			return 0;
-		})[0];
+		const today = new Date();
+		const lastSmokeToday = (
+			await this.db.smokes.filter((x) => DateUtil.datesAreEqual(x.date, today)).sortBy('date')
+		).reverse()[0];
 
 		await this.db.smokes.delete(lastSmokeToday.id);
 		await this.db.unsyncedChanges.delete(lastSmokeToday.id);
+
+		todaysSmokes.update((x) => {
+			switch (lastSmokeToday.type) {
+				case 0:
+					x.cigars--;
+					break;
+				case 1:
+					x.vapes--;
+					break;
+				case 2:
+					x.heets--;
+					break;
+			}
+			return x;
+		});
 
 		if (!navigator.onLine || !this.authService.loggedIn) {
 			await this.syncService.check();
@@ -95,10 +123,5 @@ export default class SmokesService {
 		}
 
 		await this.syncService.sync();
-	}
-
-	private dateIsToday(date: Date) {
-		const today = new Date().setHours(0, 0, 0, 0);
-		return new Date(date).setHours(0, 0, 0, 0) === today;
 	}
 }

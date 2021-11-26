@@ -1,31 +1,31 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import type Stat from '$lib/models/statistic';
+	import type Statistic from '$lib/models/statistic';
 
-	export let stat: Stat;
+	export let data: Statistic;
 </script>
 
-{#if stat}
+{#if data}
 	<div in:slide class="stat-value">
-		{#if stat.hasData}
-			{#if stat.cigars > 0}
-				<span class="cigars">{stat.cigars}</span>
+		{#if data.hasData}
+			{#if data.cigars > 0}
+				<span class="cigars">{data.cigars}</span>
 
-				{#if stat.vapes + stat.heets > 0}
+				{#if data.vapes + data.heets > 0}
 					<span> / </span>
 				{/if}
 			{/if}
 
-			{#if stat.vapes > 0}
-				<span class="vapes">{stat.vapes}</span>
+			{#if data.vapes > 0}
+				<span class="vapes">{data.vapes}</span>
 
-				{#if stat.heets > 0}
+				{#if data.heets > 0}
 					<span> / </span>
 				{/if}
 			{/if}
 
-			{#if stat.heets > 0}
-				<span class="heets">{stat.heets}</span>
+			{#if data.heets > 0}
+				<span class="heets">{data.heets}</span>
 			{/if}
 		{:else}
 			<span>-</span>

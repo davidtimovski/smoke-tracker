@@ -1,16 +1,15 @@
 import { synced } from '$lib/stores';
+import DbService from './dbService';
 import type AuthService from './authService';
-import Database from './database';
 import SmokesSync from '$lib/models/smokesSync';
 import Variables from '$lib/variables';
 
-export default class SyncService {
-	private db: Database;
+export default class SyncService extends DbService {
 	private readonly authService: AuthService;
 
 	constructor(authService: AuthService) {
-		this.db = new Database();
-		this.db.open();
+		super();
+
 		this.authService = authService;
 	}
 

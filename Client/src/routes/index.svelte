@@ -1,10 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import { todaysSmokes } from '../lib/stores';
 	import AuthService from '$lib/services/authService';
 	import SyncService from '$lib/services/syncService';
 	import SmokesService from '$lib/services/smokesService';
 	import Header from './Header.svelte';
+	import CigarSvg from '../components/CigarSvg.svelte';
+	import VapeSvg from '../components/VapeSvg.svelte';
+	import HeetSvg from '../components/HeetSvg.svelte';
 
 	let loggedIn: boolean;
 	let username: string;
@@ -12,21 +16,8 @@
 
 	const creationMs = 1500;
 
-	let todaysCigars = 0;
-	let todaysVapes = 0;
-	let todaysHeets = 0;
-	$: todaysSmokesSum = todaysCigars + todaysVapes + todaysHeets;
-
 	let authService: AuthService;
 	let smokesService: SmokesService;
-
-	async function load() {
-		await smokesService.getTodaysSmokes().then((smokes) => {
-			todaysCigars = smokes.filter((x) => x.type === 0).length;
-			todaysVapes = smokes.filter((x) => x.type === 1).length;
-			todaysHeets = smokes.filter((x) => x.type === 2).length;
-		});
-	}
 
 	let creatingCigar = false;
 	async function createCigar() {
@@ -35,7 +26,8 @@
 		}
 
 		creatingCigar = true;
-		todaysCigars++;
+
+		$todaysSmokes.cigars++;
 		await smokesService.createSmoke(0);
 
 		window.setTimeout(() => {
@@ -50,7 +42,7 @@
 		}
 
 		creatingVape = true;
-		todaysVapes++;
+		$todaysSmokes.vapes++;
 		await smokesService.createSmoke(1);
 
 		window.setTimeout(() => {
@@ -65,7 +57,7 @@
 		}
 
 		creatingHeet = true;
-		todaysHeets++;
+		$todaysSmokes.heets++;
 		await smokesService.createSmoke(2);
 
 		window.setTimeout(() => {
@@ -83,8 +75,6 @@
 		undoing = true;
 		await smokesService.undoLastCreate();
 
-		await load();
-
 		undoButtonLabel = 'Undone!';
 		window.setTimeout(() => {
 			undoButtonLabel = 'Undo';
@@ -98,7 +88,7 @@
 		username = null;
 	}
 
-	onMount(async () => {
+	onMount(() => {
 		authService = new AuthService();
 
 		loggedIn = authService.loggedIn;
@@ -109,7 +99,6 @@
 		smokesService = new SmokesService(authService, syncService);
 
 		syncService.sync();
-		load();
 	});
 </script>
 
@@ -133,8 +122,11 @@
 		role="button"
 		aria-label="Add cigar"
 	>
-		<img src="images/cigar.svg" alt="Cigar" />
-		<span class="smoke-count">{todaysCigars}</span>
+		<CigarSvg size={50} />
+
+		{#if $todaysSmokes.initialized}
+			<span class="smoke-count">{$todaysSmokes.cigars}</span>
+		{/if}
 	</div>
 
 	<div
@@ -144,8 +136,11 @@
 		role="button"
 		aria-label="Add vape"
 	>
-		<img src="images/vape.svg" alt="Vape" />
-		<span class="smoke-count">{todaysVapes}</span>
+		<VapeSvg size={50} />
+
+		{#if $todaysSmokes.initialized}
+			<span class="smoke-count">{$todaysSmokes.vapes}</span>
+		{/if}
 	</div>
 
 	<div
@@ -155,21 +150,22 @@
 		role="button"
 		aria-label="Add heet"
 	>
-		<img src="images/heet.svg" alt="Heet" />
-		<span class="smoke-count">{todaysHeets}</span>
+		<HeetSvg size={50} />
+
+		{#if $todaysSmokes.initialized}
+			<span class="smoke-count">{$todaysSmokes.heets}</span>
+		{/if}
 	</div>
 
-	{#if todaysSmokesSum > 0}
-		<button type="button" transition:slide on:click={undo} class="undo-smoke-button" class:undoing
-			>{undoButtonLabel}</button
-		>
+	{#if $todaysSmokes.initialized && $todaysSmokes.sum > 0}
+		<button type="button" in:slide on:click={undo} class="undo-smoke-button" class:undoing>{undoButtonLabel}</button>
 	{/if}
 
 	<footer>
 		{#if loggedIn === true}
-			<div class="logged-in-menu">
+			<div in:slide class="logged-in-menu">
 				<div class="logged-in-menu-message">Hello, {username}</div>
-				<button type="button" in:slide on:click={logout}>Logout</button>
+				<button type="button" on:click={logout}>Logout</button>
 			</div>
 		{:else if hasAccount === false}
 			<a href="/register" in:slide>Register</a>

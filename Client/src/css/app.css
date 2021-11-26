@@ -123,3 +123,12 @@ form label {
 .alert.warning {
 	background: #fec;
 }
+
+.page {
+	margin-top: 25%;
+	text-align: center;
+}
+
+table {
+	width: 100%;
+}

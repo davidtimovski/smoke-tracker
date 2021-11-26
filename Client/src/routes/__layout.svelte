@@ -6,11 +6,13 @@
 	import { online } from '../lib/stores';
 	import AuthService from '$lib/services/authService';
 	import SyncService from '$lib/services/syncService';
+	import SmokesService from '$lib/services/smokesService';
 
 	onMount(() => {
 		online.set(navigator.onLine);
 
-		const syncService = new SyncService(new AuthService());
+		const authService = new AuthService();
+		const syncService = new SyncService(authService);
 
 		window.addEventListener('online', () => {
 			online.set(true);
@@ -19,6 +21,9 @@
 		window.addEventListener('offline', () => {
 			online.set(false);
 		});
+
+		const smokesService = new SmokesService(authService, syncService);
+		smokesService.loadTodays();
 	});
 </script>
 
