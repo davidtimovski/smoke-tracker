@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { slide } from 'svelte/transition';
@@ -13,12 +12,6 @@
 	let registrationRedirect = false;
 	$: loginButtonDisabled = !authService || $online === false;
 	let loading = false;
-
-	const queryUsername = $page.query.get('u');
-	if (queryUsername) {
-		username = queryUsername;
-		registrationRedirect = true;
-	}
 
 	let invalidLoginMessage: string;
 	async function login() {
@@ -51,6 +44,13 @@
 	}
 
 	onMount(async () => {
+		const urlParams = new URLSearchParams(window.location.search);
+		const queryUsername = urlParams.get('u');
+		if (queryUsername) {
+			username = queryUsername;
+			registrationRedirect = true;
+		}
+		
 		authService = new AuthService();
 
 		if (authService.loggedIn) {

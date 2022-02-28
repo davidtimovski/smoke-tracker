@@ -1,5 +1,5 @@
 import { synced } from '$lib/stores';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid } from '@lukeed/uuid';
 import DbService from './dbService';
 import { get } from 'svelte/store';
 import { todaysSmokes } from '../../lib/stores';
@@ -42,7 +42,7 @@ export default class SmokesService extends DbService {
 		synced.set(false);
 
 		const smoke = {
-			id: uuidv4(),
+			id: uuid(),
 			type: type,
 			date: new Date()
 		};
