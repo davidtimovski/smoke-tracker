@@ -44,17 +44,17 @@
 	}
 
 	onMount(async () => {
+		authService = new AuthService();
+
+		if (authService.loggedIn) {
+			await goto('/');
+		}
+
 		const urlParams = new URLSearchParams(window.location.search);
 		const queryUsername = urlParams.get('u');
 		if (queryUsername) {
 			username = queryUsername;
 			registrationRedirect = true;
-		}
-		
-		authService = new AuthService();
-
-		if (authService.loggedIn) {
-			await goto('/');
 		}
 	});
 </script>
