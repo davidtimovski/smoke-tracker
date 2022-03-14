@@ -35,7 +35,7 @@
 
 		const result = await authService.login(username, password);
 		if (result.success) {
-			goto('/');
+			await goto('/');
 		} else {
 			password = '';
 			invalidLoginMessage = result.message;

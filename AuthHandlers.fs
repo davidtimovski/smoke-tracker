@@ -19,13 +19,18 @@ let private bind switchFunction twoTrackInput =
     | Success s -> switchFunction s
     | Failure f -> Failure f
 
-let private usernameBetween3and25Chars (model : RegisterDto) =
-    if model.Username.Length < 3 || model.Username.Length > 25 then Failure "Username has to be between 3 and 25 characters."
-    else Success model
+let private usernameBetween3and25Chars (model: RegisterDto) =
+    if model.Username.Length < 3
+       || model.Username.Length > 25 then
+        Failure "Username has to be between 3 and 25 characters."
+    else
+        Success model
 
-let private passwordAtLeast8Chars (model : RegisterDto) =
-    if model.Password.Length < 8 then Failure "Password must be at least 8 characters long."
-    else Success model
+let private passwordAtLeast8Chars (model: RegisterDto) =
+    if model.Password.Length < 8 then
+        Failure "Password must be at least 8 characters long."
+    else
+        Success model
 
 let private validateRegisterModel =
     usernameBetween3and25Chars
@@ -44,8 +49,7 @@ let registerHandler =
         task {
             let! model = ctx.BindJsonAsync<RegisterDto>()
 
-            let validationResult =
-                validateRegisterModel model
+            let validationResult = validateRegisterModel model
 
             match validationResult with
             | Success _ ->
@@ -58,43 +62,40 @@ let registerHandler =
                 | true ->
                     ctx.SetStatusCode 201
 
-                    let result = {
-                        Success = true
-                        Message = ""
-                    }
+                    let result = { Success = true; Message = "" }
                     return! json result next ctx
                 | false ->
                     ctx.SetStatusCode 422
 
-                    let invalidUsername = 
+                    let invalidUsername =
                         result.Errors
                         |> Seq.exists (fun x -> x.Code = "InvalidUserName")
 
                     let errorMessage =
                         match invalidUsername with
                         | true -> "Username can only contain alphanumeric characters or '-', '.', and '_'."
-                        | false -> 
-                            let duplicateUserName = 
+                        | false ->
+                            let duplicateUserName =
                                 result.Errors
                                 |> Seq.exists (fun x -> x.Code = "DuplicateUserName")
 
                             match duplicateUserName with
                             | true -> "Username is already taken."
-                            | false -> "Invalid registration."                        
+                            | false -> "Invalid registration."
 
-                    let result = {
-                        Success = false
-                        Message = errorMessage
-                    }
+                    let result =
+                        { Success = false
+                          Message = errorMessage }
+
                     return! json result next ctx
 
             | Failure errorMessage ->
                 ctx.SetStatusCode 422
 
-                let result = {
-                    Success = false
-                    Message = errorMessage
-                }
+                let result =
+                    { Success = false
+                      Message = errorMessage }
+
                 return! json result next ctx
         }
 
@@ -110,13 +111,14 @@ let authorize =
 
 let private generateToken (userId: int) (username: string) (issuer: string) (audience: string) (secret: string) =
     let claims =
-        [| 
-            Claim(JwtRegisteredClaimNames.Sub, userId.ToString())
-            Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        |]
+        [| Claim(JwtRegisteredClaimNames.Sub, userId.ToString())
+           Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) |]
 
     let tokenLastsMinutes = 60 * 24 * 30
-    let expires = Nullable(DateTime.UtcNow.AddMinutes(float tokenLastsMinutes))
+
+    let expires =
+        Nullable(DateTime.UtcNow.AddMinutes(float tokenLastsMinutes))
+
     let notBefore = Nullable(DateTime.UtcNow)
 
     let securityKey =
@@ -135,14 +137,13 @@ let private generateToken (userId: int) (username: string) (issuer: string) (aud
             signingCredentials = signingCredentials
         )
 
-    let token = JwtSecurityTokenHandler().WriteToken(token)
+    let token =
+        JwtSecurityTokenHandler().WriteToken(token)
 
-    {
-        Success = true
-        Token = token
-        ExpiresIn = tokenLastsMinutes
-        Username = username
-    }
+    { Success = true
+      Token = token
+      ExpiresIn = tokenLastsMinutes
+      Username = username }
 
 let tokenHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
@@ -152,12 +153,14 @@ let tokenHandler =
             let signInManager = ctx.GetService<SignInManager<User>>()
 
             let! user = userManager.FindByNameAsync(model.Username)
+
             if isNull user then
-                let result = {
-                    Success = false
-                    Message = "Invalid login."
-                }
-                
+                ctx.SetStatusCode 422
+
+                let result =
+                    { Success = false
+                      Message = "Invalid login." }
+
                 return! json result next ctx
             else
                 let! signInResult = signInManager.PasswordSignInAsync(user, model.Password, false, true)
@@ -173,15 +176,20 @@ let tokenHandler =
                     let secret =
                         settings.GetValue<string>("Auth:SymmetricSecurityKey")
 
-                    let tokenResult = generateToken user.Id model.Username issuer audience secret
+                    let tokenResult =
+                        generateToken user.Id model.Username issuer audience secret
 
                     return! json tokenResult next ctx
                 | false ->
                     ctx.SetStatusCode 422
 
-                    let result = {
-                        Success = false
-                        Message = if signInResult.IsLockedOut then "You've been locked out." else "Invalid login."
-                    }
+                    let result =
+                        { Success = false
+                          Message =
+                              if signInResult.IsLockedOut then
+                                  "You've been locked out."
+                              else
+                                  "Invalid login." }
+
                     return! json result next ctx
         }

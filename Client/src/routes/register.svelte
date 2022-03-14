@@ -66,7 +66,7 @@
 
 		const result = await authService.register(trimmedUsername, password);
 		if (result.success) {
-			goto(`/login?u=${trimmedUsername}`);
+			await goto(`/login?u=${trimmedUsername}`);
 		} else {
 			password = passwordConfirm = '';
 			registrationErrorMessage = result.message;
