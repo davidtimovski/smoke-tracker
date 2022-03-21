@@ -43,6 +43,15 @@ form label {
 	line-height: inherit;
 }
 
+.page-title {
+	margin: 12% 0 15%;
+	text-align: center;
+	font-size: 26px;
+}
+.page {
+	text-align: center;
+}
+
 .loader {
 	display: inline-block;
 	width: 20px;
@@ -83,6 +92,7 @@ form label {
 	border-radius: 5px;
 	outline: none;
 	padding: 6px 15px;
+	line-height: 26px;
 	cursor: pointer;
 	user-select: none;
 	color: #fff;
@@ -122,11 +132,6 @@ form label {
 
 .alert.warning {
 	background: #fec;
-}
-
-.page {
-	margin-top: 25%;
-	text-align: center;
 }
 
 table {

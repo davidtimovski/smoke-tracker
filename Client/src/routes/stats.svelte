@@ -24,22 +24,26 @@
 </svelte:head>
 
 <section class="page">
-	<div class="stat">
-		<div class="stat-title">In the past week</div>
-		<Stat data={inThePastWeek} />
-	</div>
+	<div class="page-title">Stats</div>
 
-	<div class="stat">
-		<div class="stat-title">In the past month</div>
-		<Stat data={inThePastMonth} />
-	</div>
+	<div class="page">
+		<div class="stat">
+			<div class="stat-title">In the past week</div>
+			<Stat data={inThePastWeek} />
+		</div>
 
-	<a href="/" class="link-button">Back</a>
+		<div class="stat">
+			<div class="stat-title">In the past month</div>
+			<Stat data={inThePastMonth} />
+		</div>
+
+		<a href="/" class="link-button">Back</a>
+	</div>
 </section>
 
 <style lang="scss">
 	.stat {
-		margin-bottom: 60px;
+		margin: 60px 0;
 		line-height: 32px;
 		font-size: 24px;
 

@@ -167,8 +167,8 @@
 				<div class="logged-in-menu-message">Hello, {username}</div>
 				<button type="button" on:click={logout}>Logout</button>
 			</div>
-		{:else if hasAccount === false}
-			<a href="/register" in:slide>Register</a>
+		{:else}
+			<a href="/login" in:slide>Login</a>
 		{/if}
 	</footer>
 </section>

@@ -21,29 +21,33 @@
 	<title>Smoke Tracker - History</title>
 </svelte:head>
 
-<section class="page">
-	{#if smokesPerDay}
-		<table>
-			{#each smokesPerDay as day}
-				<tr class:weekend={day.isWeekend}>
-					<td>{day.date}</td>
-					<td title={day.label} aria-label={day.label}>
-						{#each Array(day.cigars) as _}
-							<CigarSvg size={26} fill="#00d1b2" />
-						{/each}
-						{#each Array(day.vapes) as _}
-							<VapeSvg size={26} fill="#485fc7" />
-						{/each}
-						{#each Array(day.heets) as _}
-							<HeetSvg size={26} fill="#3e8ed0" />
-						{/each}
-					</td>
-				</tr>
-			{/each}
-		</table>
-	{/if}
+<section>
+	<div class="page-title">History</div>
 
-	<a href="/" class="link-button">Back</a>
+	<div class="page">
+		{#if smokesPerDay}
+			<table>
+				{#each smokesPerDay as day}
+					<tr class:weekend={day.isWeekend}>
+						<td>{day.date}</td>
+						<td title={day.label} aria-label={day.label}>
+							{#each Array(day.cigars) as _}
+								<CigarSvg size={26} fill="#00d1b2" />
+							{/each}
+							{#each Array(day.vapes) as _}
+								<VapeSvg size={26} fill="#485fc7" />
+							{/each}
+							{#each Array(day.heets) as _}
+								<HeetSvg size={26} fill="#3e8ed0" />
+							{/each}
+						</td>
+					</tr>
+				{/each}
+			</table>
+		{/if}
+
+		<a href="/" class="link-button">Back</a>
+	</div>
 </section>
 
 <style lang="scss">

@@ -64,6 +64,8 @@
 </svelte:head>
 
 <section>
+	<div class="page-title">Login</div>
+
 	{#if $online === false}
 		<div in:slide class="alert warning">You must be online in order to login.</div>
 	{/if}
@@ -101,10 +103,17 @@
 			</div>
 		</div>
 	</form>
+
+	<div class="register-alert">Don't have an account? <a href="/register">Register.</a></div>
 </section>
 
 <style lang="scss">
 	.login-form {
 		margin-top: 25%;
+	}
+
+	.register-alert {
+		margin-top: 50px;
+		text-align: center;
 	}
 </style>

@@ -88,6 +88,8 @@
 </svelte:head>
 
 <section>
+	<div class="page-title">Register</div>
+
 	{#if $online === false}
 		<div in:slide class="alert warning">You must be online in order to register.</div>
 	{/if}
