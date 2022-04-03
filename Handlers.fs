@@ -8,6 +8,36 @@ open System.Linq
 open Entities
 open SmokeTracker.Models
 open AuthHandlers
+open System
+open Microsoft.EntityFrameworkCore
+
+let getSmokesBefore (earliestSmokeId: Guid) : HttpHandler =
+    fun (next: HttpFunc) (ctx: HttpContext) ->
+        task {
+            let smokesBefore =
+                let db = ctx.GetService<SmokeTrackerContext>()
+
+                if earliestSmokeId <> Guid.Empty then
+                    let earliestSmoke = db.Smokes.Find(earliestSmokeId)
+
+                    db
+                        .Smokes
+                        .AsNoTracking()
+                        .Where(fun x -> x.Date < earliestSmoke.Date)
+                        .AsEnumerable()
+                else
+                    db.Smokes.AsNoTracking().AsEnumerable()
+
+            let result =
+                smokesBefore
+                |> Seq.map
+                    (fun x ->
+                        { Id = x.Id
+                          Type = x.Type
+                          Date = x.Date })
+
+            return! json result next ctx
+        }
 
 let createSmokeHandler: HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
@@ -16,10 +46,11 @@ let createSmokeHandler: HttpHandler =
 
             let! smokeDto = ctx.BindJsonAsync<SmokeDto>()
 
-            let smoke = { Id = smokeDto.Id
-                          UserId = userId
-                          Type = smokeDto.Type
-                          Date = smokeDto.Date }
+            let smoke =
+                { Id = smokeDto.Id
+                  UserId = userId
+                  Type = smokeDto.Type
+                  Date = smokeDto.Date }
 
             let db = ctx.GetService<SmokeTrackerContext>()
             db.Smokes.Add(smoke) |> ignore

@@ -14,7 +14,7 @@
 	let username: string;
 	let hasAccount: boolean;
 
-	const creationMs = 1500;
+	const btnAnimationDuration = 1000;
 
 	let authService: AuthService;
 	let smokesService: SmokesService;
@@ -32,7 +32,7 @@
 
 		window.setTimeout(() => {
 			creatingCigar = false;
-		}, creationMs);
+		}, btnAnimationDuration);
 	}
 
 	let creatingVape = false;
@@ -47,7 +47,7 @@
 
 		window.setTimeout(() => {
 			creatingVape = false;
-		}, creationMs);
+		}, btnAnimationDuration);
 	}
 
 	let creatingHeet = false;
@@ -62,7 +62,7 @@
 
 		window.setTimeout(() => {
 			creatingHeet = false;
-		}, creationMs);
+		}, btnAnimationDuration);
 	}
 
 	let undoButtonLabel = 'Undo';
@@ -79,7 +79,7 @@
 		window.setTimeout(() => {
 			undoButtonLabel = 'Undo';
 			undoing = false;
-		}, creationMs);
+		}, btnAnimationDuration);
 	}
 
 	function logout() {
