@@ -28,6 +28,6 @@
   "dependencies": {
     "@lukeed/uuid": "^2.0.0",
     "cookie": "^0.4.1",
-    "dexie": "3.2.1"
+    "dexie": "3.2.2"
   }
 }
