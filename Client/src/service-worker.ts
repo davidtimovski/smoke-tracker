@@ -1,10 +1,8 @@
-import { build, files, timestamp } from '$service-worker';
-
-const CACHE_NAME = timestamp.toString();
+import { build, files, version } from '$service-worker';
 
 self.addEventListener('install', (event: ExtendableEvent) => {
 	event.waitUntil(
-		caches.open(CACHE_NAME).then((cache) => {
+		caches.open(version).then((cache) => {
 			const preCacheResources = ['/'].concat(build).concat(files);
 			cache.addAll(preCacheResources);
 		})
@@ -17,7 +15,7 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
 		caches.keys().then((keyList) => {
 			return Promise.all(
 				keyList.map((key) => {
-					if (key !== CACHE_NAME) {
+					if (key !== version) {
 						return caches.delete(key);
 					}
 				})
