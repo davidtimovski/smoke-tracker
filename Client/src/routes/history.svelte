@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { slide } from 'svelte/transition';
 	import HistoryService from '$lib/services/historyService';
 	import type SmokesOnDate from '$lib/models/smokesOnDate';
 	import CigarSvg from '../components/CigarSvg.svelte';
@@ -8,12 +9,10 @@
 
 	let smokesPerDay: SmokesOnDate[];
 
-	onMount(() => {
+	onMount(async () => {
 		const historyService = new HistoryService();
 
-		historyService.smokesPerDayFromThePastWeek().then((result) => {
-			smokesPerDay = result;
-		});
+		smokesPerDay = await historyService.smokesPerDayFromThePastWeek();
 	});
 </script>
 
@@ -26,7 +25,7 @@
 
 	<div class="page">
 		{#if smokesPerDay}
-			<table>
+			<table in:slide>
 				{#each smokesPerDay as day}
 					<tr class:weekend={day.isWeekend}>
 						<td>{day.date}</td>

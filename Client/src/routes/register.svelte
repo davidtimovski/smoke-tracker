@@ -25,17 +25,16 @@
 		checkingUsername = true;
 
 		window.clearTimeout(timer);
-		timer = window.setTimeout(() => {
-			authService.checkIfUsernameAvailable(username).then((available) => {
-				usernameIsTaken = !available;
-				checkingUsername = false;
-			});
+		timer = window.setTimeout(async () => {
+			const available = await authService.checkIfUsernameAvailable(username);
+			usernameIsTaken = !available;
+			checkingUsername = false;
 		}, 800);
 	};
 
 	let registrationErrorMessage: string;
 	async function register() {
-		if (!authService) {
+		if (registerButtonDisabled || loading) {
 			return;
 		}
 

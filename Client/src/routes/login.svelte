@@ -15,7 +15,7 @@
 
 	let invalidLoginMessage: string;
 	async function login() {
-		if (!authService || loginButtonDisabled) {
+		if (loginButtonDisabled || loading) {
 			return;
 		}
 
