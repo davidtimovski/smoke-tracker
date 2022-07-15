@@ -5,7 +5,7 @@
 </script>
 
 <header>
-	<div class="status-indicators" title={syncLabel} aria-label={syncLabel}>
+	<div class="status-indicators" role="tooltip" title={syncLabel} aria-label={syncLabel}>
 		<div class="synced" class:inactive={!$synced} />
 		<div class="not-synced" class:inactive={$synced} />
 	</div>
