@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+
 	import StatsService from '$lib/services/statsService';
 	import type Statistic from '$lib/models/statistic';
-	import Stat from '../components/stat.svelte';
+	
+	import Stat from '$lib/components/stat.svelte';
 
 	let inThePastWeek: Statistic;
 	let inThePastMonth: Statistic;

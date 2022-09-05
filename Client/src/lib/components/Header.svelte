@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { synced } from '../lib/stores';
+	import { synced } from '$lib/stores';
 
 	$: syncLabel = $synced ? 'Synced with server' : "Some changes haven't been synced";
 </script>

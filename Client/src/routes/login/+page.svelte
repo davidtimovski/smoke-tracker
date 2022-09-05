@@ -2,7 +2,8 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { slide } from 'svelte/transition';
-	import { online } from '../lib/stores';
+	
+	import { online } from '$lib/stores';
 	import AuthService from '$lib/services/authService';
 
 	let authService: AuthService;

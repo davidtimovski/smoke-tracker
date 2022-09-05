@@ -1,14 +1,16 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
-	import { todaysSmokes } from '../lib/stores';
+
+	import { todaysSmokes } from '$lib/stores';
 	import AuthService from '$lib/services/authService';
 	import SyncService from '$lib/services/syncService';
 	import SmokesService from '$lib/services/smokesService';
-	import Header from './Header.svelte';
-	import CigarSvg from '../components/CigarSvg.svelte';
-	import VapeSvg from '../components/VapeSvg.svelte';
-	import HeetSvg from '../components/HeetSvg.svelte';
+	
+	import Header from '$lib/components/Header.svelte';
+	import CigarSvg from '$lib/components/CigarSvg.svelte';
+	import VapeSvg from '$lib/components/VapeSvg.svelte';
+	import HeetSvg from '$lib/components/HeetSvg.svelte';
 
 	let loggedIn: boolean;
 	let username: string;

@@ -3,7 +3,7 @@
 	import '../css/app.css';
 
 	import { onMount } from 'svelte';
-	import { online } from '../lib/stores';
+	import { online } from '$lib/stores';
 	import AuthService from '$lib/services/authService';
 	import SyncService from '$lib/services/syncService';
 	import SmokesService from '$lib/services/smokesService';

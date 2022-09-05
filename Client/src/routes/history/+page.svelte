@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
+
 	import HistoryService from '$lib/services/historyService';
 	import type SmokesOnDate from '$lib/models/smokesOnDate';
-	import CigarSvg from '../components/CigarSvg.svelte';
-	import VapeSvg from '../components/VapeSvg.svelte';
-	import HeetSvg from '../components/HeetSvg.svelte';
+	
+	import CigarSvg from '$lib/components/CigarSvg.svelte';
+	import VapeSvg from '$lib/components/VapeSvg.svelte';
+	import HeetSvg from '$lib/components/HeetSvg.svelte';
 
 	let smokesPerDay: SmokesOnDate[];
 
