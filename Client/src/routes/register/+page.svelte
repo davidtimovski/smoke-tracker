@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { slide } from 'svelte/transition';
-	
+
 	import { online } from '$lib/stores';
 	import AuthService from '$lib/services/authService';
 
@@ -27,9 +27,13 @@
 
 		window.clearTimeout(timer);
 		timer = window.setTimeout(async () => {
-			const available = await authService.checkIfUsernameAvailable(username);
-			usernameIsTaken = !available;
-			checkingUsername = false;
+			try {
+				const available = await authService.checkIfUsernameAvailable(username);
+				usernameIsTaken = !available;
+				checkingUsername = false;
+			} catch {
+				checkingUsername = false;
+			}
 		}, 800);
 	};
 
@@ -64,12 +68,17 @@
 			return;
 		}
 
-		const result = await authService.register(trimmedUsername, password);
-		if (result.success) {
-			await goto(`/login?u=${trimmedUsername}`);
-		} else {
-			password = passwordConfirm = '';
-			registrationErrorMessage = result.message;
+		try {
+			const result = await authService.register(trimmedUsername, password);
+			if (result.success) {
+				await goto(`/login?u=${trimmedUsername}`);
+			} else {
+				password = passwordConfirm = '';
+				registrationErrorMessage = result.message;
+				loading = false;
+			}
+		} catch {
+			registrationErrorMessage = 'Something went wrong.';
 			loading = false;
 		}
 	}
@@ -126,8 +135,7 @@
 
 		<div class="form-control submit">
 			<a href="/" class="link-button">Back</a>
-			<div
-				role="button"
+			<button
 				on:click={register}
 				class="button-with-loader"
 				class:disabled={registerButtonDisabled || loading}
@@ -135,7 +143,7 @@
 			>
 				Register
 				<div class="loader" />
-			</div>
+			</button>
 		</div>
 	</form>
 </section>

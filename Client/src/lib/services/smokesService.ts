@@ -19,12 +19,12 @@ export default class SmokesService extends DbService {
 		this.syncService = syncService;
 	}
 
-	public async getTodaysSmokes() {
+	async getTodaysSmokes() {
 		const today = new Date();
 		return await this.db.smokes.filter((x) => DateUtil.datesAreEqual(x.date, today)).toArray();
 	}
 
-	public async loadTodays() {
+	async loadTodays() {
 		const todaysSmokesValue = get(todaysSmokes);
 		if (todaysSmokesValue.initialized) {
 			return;
@@ -38,7 +38,7 @@ export default class SmokesService extends DbService {
 		});
 	}
 
-	public async createSmoke(type: number) {
+	async createSmoke(type: number) {
 		synced.set(false);
 
 		const smoke = {
@@ -72,7 +72,7 @@ export default class SmokesService extends DbService {
 		await this.syncService.sync();
 	}
 
-	public async undoLastCreate() {
+	async undoLastCreate() {
 		const count = await this.db.smokes.count();
 		if (count === 0) {
 			return;

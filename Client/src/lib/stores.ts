@@ -4,3 +4,4 @@ import TodaysSmokes from './models/todaysSmokes';
 export const online = writable(null);
 export const synced = writable(false);
 export const todaysSmokes = writable(new TodaysSmokes());
+export const statsDrawerIsOpen = writable(false);

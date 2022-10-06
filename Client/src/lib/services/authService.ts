@@ -5,9 +5,9 @@ import Variables from '$lib/variables';
 export default class AuthService {
 	private expires: Date = null;
 	private loginCheckInterval: number;
-	public token: string = null;
-	public username: string = null;
-	public hasAccount: boolean;
+	token: string = null;
+	username: string = null;
+	hasAccount: boolean;
 
 	constructor() {
 		const tokenExpires = window.localStorage.getItem('expires');
@@ -27,7 +27,7 @@ export default class AuthService {
 		}
 	}
 
-	public get loggedIn() {
+	get loggedIn() {
 		if (!this.token) {
 			return false;
 		}
@@ -35,7 +35,7 @@ export default class AuthService {
 		return this.expires > new Date();
 	}
 
-	public async login(username: string, password: string) {
+	async login(username: string, password: string) {
 		const response = await fetch(Variables.baseUri + 'token', {
 			method: 'post',
 			body: JSON.stringify({
@@ -66,7 +66,7 @@ export default class AuthService {
 		return result;
 	}
 
-	public async checkIfUsernameAvailable(username: string) {
+	async checkIfUsernameAvailable(username: string) {
 		if (username.trim() === '') {
 			return true;
 		}
@@ -81,7 +81,7 @@ export default class AuthService {
 		return <boolean>await response.json();
 	}
 
-	public async register(username: string, password: string) {
+	async register(username: string, password: string) {
 		const response = await fetch(Variables.baseUri + 'register', {
 			method: 'post',
 			body: JSON.stringify({
@@ -97,7 +97,7 @@ export default class AuthService {
 		return <RegisterResult>await response.json();
 	}
 
-	public logout() {
+	logout() {
 		window.localStorage.setItem('token', '');
 		window.localStorage.setItem('expires', '');
 		window.localStorage.setItem('username', '');

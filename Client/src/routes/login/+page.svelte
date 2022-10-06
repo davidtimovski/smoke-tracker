@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { slide } from 'svelte/transition';
-	
+
 	import { online } from '$lib/stores';
 	import AuthService from '$lib/services/authService';
 
@@ -34,12 +34,17 @@
 			return;
 		}
 
-		const result = await authService.login(username, password);
-		if (result.success) {
-			await goto('/');
-		} else {
-			password = '';
-			invalidLoginMessage = result.message;
+		try {
+			const result = await authService.login(username, password);
+			if (result.success) {
+				await goto('/');
+			} else {
+				password = '';
+				invalidLoginMessage = result.message;
+				loading = false;
+			}
+		} catch {
+			invalidLoginMessage = 'Something went wrong.';
 			loading = false;
 		}
 	}
@@ -92,16 +97,10 @@
 
 		<div class="form-control submit">
 			<a href="/" class="link-button">Back</a>
-			<div
-				role="button"
-				on:click={login}
-				class="button-with-loader"
-				class:disabled={loginButtonDisabled || loading}
-				class:loading
-			>
+			<button on:click={login} class="button-with-loader" class:disabled={loginButtonDisabled || loading} class:loading>
 				Login
 				<div class="loader" />
-			</div>
+			</button>
 		</div>
 	</form>
 

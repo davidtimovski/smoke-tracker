@@ -3,8 +3,8 @@
 
 	import StatsService from '$lib/services/statsService';
 	import type Statistic from '$lib/models/statistic';
-	
-	import Stat from '$lib/components/stat.svelte';
+
+	import Stat from '$lib/components/Stat.svelte';
 
 	let inThePastWeek: Statistic;
 	let inThePastMonth: Statistic;
@@ -22,11 +22,11 @@
 </script>
 
 <svelte:head>
-	<title>Smoke Tracker - Stats</title>
+	<title>Smoke Tracker - Week & month</title>
 </svelte:head>
 
 <section class="page">
-	<div class="page-title">Stats</div>
+	<div class="page-title">Week & month</div>
 
 	<div class="page">
 		<div class="stat">

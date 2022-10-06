@@ -4,6 +4,7 @@
 
 	import { onMount } from 'svelte';
 	import { online } from '$lib/stores';
+
 	import AuthService from '$lib/services/authService';
 	import SyncService from '$lib/services/syncService';
 	import SmokesService from '$lib/services/smokesService';
@@ -36,7 +37,6 @@
 <style>
 	.container {
 		width: 100%;
-		padding: 0 20px;
 	}
 
 	@media screen and (min-width: 600px) {

@@ -1,6 +1,11 @@
 {
 	"name": "smoke-tracker",
 	"version": "1.0.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/davidtimovski/smoke-tracker"
+	},
+	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -15,7 +20,7 @@
 		"@sveltejs/adapter-static": "^1.0.0-next.42",
 		"@sveltejs/kit": "^1.0.0-next.444",
 		"@types/cookie": "^0.5.1",
-		"node-sass": "7.0.1",
+		"node-sass": "7.0.3",
 		"prettier": "^2.6.2",
 		"prettier-plugin-svelte": "^2.7.0",
 		"svelte": "^3.46.0",
@@ -23,12 +28,12 @@
 		"svelte-preprocess": "^4.10.6",
 		"tslib": "^2.3.1",
 		"typescript": "^4.7.4",
-		"vite": "^3.0.0"
+		"vite": "3.1.0"
 	},
 	"type": "module",
 	"dependencies": {
 		"@lukeed/uuid": "^2.0.0",
-		"cookie": "^0.4.1",
+		"chart.js": "^3.9.1",
 		"dexie": "3.2.2"
 	}
 }

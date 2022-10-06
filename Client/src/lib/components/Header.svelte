@@ -1,7 +1,13 @@
 <script lang="ts">
 	import { synced } from '$lib/stores';
+	import { slide } from 'svelte/transition';
+	import { statsDrawerIsOpen } from '$lib/stores';
 
 	$: syncLabel = $synced ? 'Synced with server' : "Some changes haven't been synced";
+
+	function toggleStatItems() {
+		statsDrawerIsOpen.set(!$statsDrawerIsOpen);
+	}
 </script>
 
 <header>
@@ -10,8 +16,16 @@
 		<div class="not-synced" class:inactive={$synced} />
 	</div>
 	<nav>
-		<a href="/history">History</a>
-		<a href="/stats">Stats</a>
+		<div class="stats-drawer" class:open={$statsDrawerIsOpen}>
+			<button type="button" on:click={toggleStatItems} class="stats-button">Stats</button>
+			{#if $statsDrawerIsOpen}
+				<ul in:slide>
+					<li><a href="/week">Week</a></li>
+					<li><a href="/weekAndMonth">Week & month</a></li>
+					<li><a href="/perMonth">Per month</a></li>
+				</ul>
+			{/if}
+		</div>
 	</nav>
 </header>
 
@@ -19,7 +33,7 @@
 	header {
 		display: flex;
 		justify-content: space-between;
-		padding: 25px 10px;
+		padding: 25px 30px;
 		margin-bottom: 20px;
 
 		.status-indicators {
@@ -46,11 +60,41 @@
 		}
 	}
 
-	nav a {
-		display: inline-block;
+	.stats-drawer {
 		border: 2px solid #00d1b2;
 		border-radius: 5px;
-		padding: 3px 15px;
-		text-decoration: none;
+		color: #1e6eb0;
+
+		&.open {
+			.stats-button {
+				background: #00d1b2;
+				color: #fff;
+			}
+		}
+
+		.stats-button {
+			display: block;
+			width: 100%;
+			background: transparent;
+			border: none;
+			outline: none;
+			padding: 5px 15px;
+			color: #1e6eb0;
+			transition: background 250ms, color 250ms;
+		}
+
+		ul {
+			border-top: 1px solid #00d1b2;
+			padding: 0;
+			margin: 0;
+			list-style: none;
+		}
+
+		a {
+			display: block;
+			padding: 5px 15px;
+			text-decoration: none;
+			text-align: center;
+		}
 	}
 </style>

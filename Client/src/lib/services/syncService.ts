@@ -14,7 +14,7 @@ export default class SyncService extends DbService {
 		this.authService = authService;
 	}
 
-	public async sync() {
+	async sync() {
 		if (!this.authService.loggedIn) {
 			return;
 		}
@@ -93,12 +93,12 @@ export default class SyncService extends DbService {
 		synced.set(true);
 	}
 
-	public async check() {
+	async check() {
 		const unsyncedChangesCount = await this.db.unsyncedChanges.count();
 		synced.set(unsyncedChangesCount === 0);
 	}
 
-	public async addUnsyncedChange(id: string, changeType: number) {
+	async addUnsyncedChange(id: string, changeType: number) {
 		await this.db.unsyncedChanges.add({ id: id, entityType: 0, changeType: changeType }, id);
 	}
 }

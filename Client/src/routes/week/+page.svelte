@@ -2,9 +2,9 @@
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 
-	import HistoryService from '$lib/services/historyService';
+	import StatsService from '$lib/services/statsService';
 	import type SmokesOnDate from '$lib/models/smokesOnDate';
-	
+
 	import CigarSvg from '$lib/components/CigarSvg.svelte';
 	import VapeSvg from '$lib/components/VapeSvg.svelte';
 	import HeetSvg from '$lib/components/HeetSvg.svelte';
@@ -12,18 +12,17 @@
 	let smokesPerDay: SmokesOnDate[];
 
 	onMount(async () => {
-		const historyService = new HistoryService();
-
-		smokesPerDay = await historyService.smokesPerDayFromThePastWeek();
+		const statsService = new StatsService();
+		smokesPerDay = await statsService.smokesPerDayFromThePastWeek();
 	});
 </script>
 
 <svelte:head>
-	<title>Smoke Tracker - History</title>
+	<title>Smoke Tracker - Week</title>
 </svelte:head>
 
 <section>
-	<div class="page-title">History</div>
+	<div class="page-title">Week</div>
 
 	<div class="page">
 		{#if smokesPerDay}

@@ -1,6 +1,4 @@
 export default class DateUtil {
-	private static readonly weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
 	static resetHours(date: Date) {
 		const newDate = new Date(date);
 		newDate.setHours(0, 0, 0, 0);
@@ -11,13 +9,19 @@ export default class DateUtil {
 		return this.resetHours(date1).getTime() === this.resetHours(date2).getTime();
 	}
 
+	static monthsAreEqual(date1: Date, date2: Date) {
+		return date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth();
+	}
+
 	static formatMMDD(date: Date) {
-		const month = date.toLocaleString('default', { month: 'short' });
+		const month = date.toLocaleString('en-US', { month: 'short' });
 		return `${month} ${date.getDate()}`;
 	}
 
 	static formatWeekday(date: Date) {
-		return this.weekdays[date.getDay()];
+		return date.toLocaleDateString('en-US', {
+			weekday: 'short'
+		});
 	}
 
 	static isWeekend(date: Date) {

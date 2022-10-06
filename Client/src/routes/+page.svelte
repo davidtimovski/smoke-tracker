@@ -2,11 +2,11 @@
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 
-	import { todaysSmokes } from '$lib/stores';
+	import { todaysSmokes, statsDrawerIsOpen } from '$lib/stores';
 	import AuthService from '$lib/services/authService';
 	import SyncService from '$lib/services/syncService';
 	import SmokesService from '$lib/services/smokesService';
-	
+
 	import Header from '$lib/components/Header.svelte';
 	import CigarSvg from '$lib/components/CigarSvg.svelte';
 	import VapeSvg from '$lib/components/VapeSvg.svelte';
@@ -90,6 +90,10 @@
 		username = null;
 	}
 
+	function closeStatsDrawer() {
+		statsDrawerIsOpen.set(false);
+	}
+
 	onMount(() => {
 		authService = new AuthService();
 
@@ -108,7 +112,7 @@
 	<title>Smoke Tracker</title>
 </svelte:head>
 
-{#if hasAccount === true && loggedIn === false}
+{#if hasAccount && !loggedIn}
 	<div in:slide class="alert warning">
 		You're not logged in currently.<br /><a href="/login">Log back in</a> if you want your changes to be synced.
 	</div>
@@ -116,12 +120,12 @@
 
 <Header />
 
-<section>
-	<div
+<section on:click={closeStatsDrawer}>
+	<button
+		type="button"
 		on:click={createCigar}
 		class="create-smoke-button cigar"
 		class:creating={creatingCigar}
-		role="button"
 		aria-label="Add cigar"
 	>
 		<CigarSvg size={50} />
@@ -129,13 +133,13 @@
 		{#if $todaysSmokes.initialized}
 			<span class="smoke-count">{$todaysSmokes.cigars}</span>
 		{/if}
-	</div>
+	</button>
 
-	<div
+	<button
+		type="button"
 		on:click={createVape}
 		class="create-smoke-button vape"
 		class:creating={creatingVape}
-		role="button"
 		aria-label="Add vape"
 	>
 		<VapeSvg size={50} />
@@ -143,13 +147,13 @@
 		{#if $todaysSmokes.initialized}
 			<span class="smoke-count">{$todaysSmokes.vapes}</span>
 		{/if}
-	</div>
+	</button>
 
-	<div
+	<button
+		type="button"
 		on:click={createHeet}
 		class="create-smoke-button heet"
 		class:creating={creatingHeet}
-		role="button"
 		aria-label="Add heet"
 	>
 		<HeetSvg size={50} />
@@ -157,14 +161,14 @@
 		{#if $todaysSmokes.initialized}
 			<span class="smoke-count">{$todaysSmokes.heets}</span>
 		{/if}
-	</div>
+	</button>
 
 	{#if $todaysSmokes.initialized && $todaysSmokes.sum > 0}
 		<button type="button" in:slide on:click={undo} class="undo-smoke-button" class:undoing>{undoButtonLabel}</button>
 	{/if}
 
 	<footer>
-		{#if loggedIn === true}
+		{#if loggedIn}
 			<div in:slide class="logged-in-menu">
 				<div class="logged-in-menu-message">Hello, {username}</div>
 				<button type="button" on:click={logout}>Logout</button>
@@ -186,12 +190,12 @@
 		height: 80px;
 		border: 2px solid;
 		border-radius: 10px;
+		outline: none;
 		padding: 15px 15px 10px;
 		margin-bottom: 20px;
 		font-size: 30px;
 		user-select: none;
 		text-align: center;
-		cursor: pointer;
 		transition: background 300ms ease-out, color 300ms ease-out, font-size 300ms;
 
 		&.creating {
