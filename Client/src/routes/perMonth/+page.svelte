@@ -52,7 +52,7 @@
 	<title>Smoke Tracker - Per month</title>
 </svelte:head>
 
-<section class="page">
+<section>
 	<div class="page-title">Per month</div>
 
 	<div class="page">
@@ -63,10 +63,6 @@
 </section>
 
 <style lang="scss">
-	.page {
-		padding: 0 12px;
-	}
-
 	.canvas {
 		margin-bottom: 60px;
 	}

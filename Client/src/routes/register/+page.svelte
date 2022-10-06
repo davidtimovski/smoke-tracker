@@ -99,53 +99,55 @@
 <section>
 	<div class="page-title">Register</div>
 
-	{#if $online === false}
-		<div in:slide class="alert warning">You must be online in order to register.</div>
-	{/if}
+	<div class="page">
+		{#if $online === false}
+			<div in:slide class="alert warning">You must be online in order to register.</div>
+		{/if}
 
-	{#if registrationErrorMessage}
-		<div in:slide class="validation-alert">{registrationErrorMessage}</div>
-	{/if}
+		{#if registrationErrorMessage}
+			<div in:slide class="validation-alert">{registrationErrorMessage}</div>
+		{/if}
 
-	<form on:submit|preventDefault={register} class="registration-form">
-		<div class="form-control">
-			<label for="username">Username</label>
-			<div class="username-input-wrap">
-				<input
-					type="text"
-					id="username"
-					bind:value={username}
-					on:keyup={() => checkUsernameAvailability()}
-					maxlength="25"
-				/>
-				<span class="availability-loader" class:loading={checkingUsername}><div class="loader" /></span>
-				<span class="availability-indicator">{!checkingUsername && usernameIsTaken ? 'taken' : ''}</span>
+		<form on:submit|preventDefault={register} class="registration-form">
+			<div class="form-control">
+				<label for="username">Username</label>
+				<div class="username-input-wrap">
+					<input
+						type="text"
+						id="username"
+						bind:value={username}
+						on:keyup={() => checkUsernameAvailability()}
+						maxlength="25"
+					/>
+					<span class="availability-loader" class:loading={checkingUsername}><div class="loader" /></span>
+					<span class="availability-indicator">{!checkingUsername && usernameIsTaken ? 'taken' : ''}</span>
+				</div>
 			</div>
-		</div>
 
-		<div class="form-control">
-			<label for="password">Password</label>
-			<input type="password" id="password" bind:value={password} />
-		</div>
+			<div class="form-control">
+				<label for="password">Password</label>
+				<input type="password" id="password" bind:value={password} />
+			</div>
 
-		<div class="form-control">
-			<label for="password-confirm">Confirm password</label>
-			<input type="password" id="password-confirm" bind:value={passwordConfirm} />
-		</div>
+			<div class="form-control">
+				<label for="password-confirm">Confirm password</label>
+				<input type="password" id="password-confirm" bind:value={passwordConfirm} />
+			</div>
 
-		<div class="form-control submit">
-			<a href="/" class="link-button">Back</a>
-			<button
-				on:click={register}
-				class="button-with-loader"
-				class:disabled={registerButtonDisabled || loading}
-				class:loading
-			>
-				Register
-				<div class="loader" />
-			</button>
-		</div>
-	</form>
+			<div class="form-control submit">
+				<a href="/" class="link-button">Back</a>
+				<button
+					on:click={register}
+					class="button-with-loader"
+					class:disabled={registerButtonDisabled || loading}
+					class:loading
+				>
+					Register
+					<div class="loader" />
+				</button>
+			</div>
+		</form>
+	</div>
 </section>
 
 <style lang="scss">

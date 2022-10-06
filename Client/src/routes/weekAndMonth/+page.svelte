@@ -25,7 +25,7 @@
 	<title>Smoke Tracker - Week & month</title>
 </svelte:head>
 
-<section class="page">
+<section>
 	<div class="page-title">Week & month</div>
 
 	<div class="page">
