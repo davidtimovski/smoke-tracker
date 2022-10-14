@@ -38,6 +38,7 @@
 			options: {
 				scales: {
 					y: {
+						min: 0,
 						ticks: {
 							stepSize: 1
 						}
