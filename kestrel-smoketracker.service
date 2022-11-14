@@ -3,7 +3,7 @@ Description=Smoke Tracker running on Ubuntu
 
 [Service]
 WorkingDirectory=/home/davidtimovski/smoketracker
-ExecStart=/usr/bin/dotnet /home/davidtimovski/smoketracker/SmokeTracker.dll
+ExecStart=/snap/bin/dotnet /home/davidtimovski/smoketracker/SmokeTracker.dll
 Restart=always
 RestartSec=10  # Restart service after 10 seconds if dotnet service crashes
 KillSignal=SIGINT
