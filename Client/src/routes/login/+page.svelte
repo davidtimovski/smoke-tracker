@@ -98,12 +98,7 @@
 
 			<div class="form-control submit">
 				<a href="/" class="link-button">Back</a>
-				<button
-					on:click={login}
-					class="button-with-loader"
-					class:disabled={loginButtonDisabled || loading}
-					class:loading
-				>
+				<button on:click={login} class="button-with-loader" class:disabled={loginButtonDisabled || loading} class:loading>
 					Login
 					<div class="loader" />
 				</button>

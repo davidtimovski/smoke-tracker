@@ -121,13 +121,7 @@
 <Header />
 
 <section on:click={closeStatsDrawer}>
-	<button
-		type="button"
-		on:click={createCigar}
-		class="create-smoke-button cigar"
-		class:creating={creatingCigar}
-		aria-label="Add cigar"
-	>
+	<button type="button" on:click={createCigar} class="create-smoke-button cigar" class:creating={creatingCigar} aria-label="Add cigar">
 		<CigarSvg size={50} />
 
 		{#if $todaysSmokes.initialized}
@@ -135,13 +129,7 @@
 		{/if}
 	</button>
 
-	<button
-		type="button"
-		on:click={createVape}
-		class="create-smoke-button vape"
-		class:creating={creatingVape}
-		aria-label="Add vape"
-	>
+	<button type="button" on:click={createVape} class="create-smoke-button vape" class:creating={creatingVape} aria-label="Add vape">
 		<VapeSvg size={50} />
 
 		{#if $todaysSmokes.initialized}
@@ -149,13 +137,7 @@
 		{/if}
 	</button>
 
-	<button
-		type="button"
-		on:click={createHeet}
-		class="create-smoke-button heet"
-		class:creating={creatingHeet}
-		aria-label="Add heet"
-	>
+	<button type="button" on:click={createHeet} class="create-smoke-button heet" class:creating={creatingHeet} aria-label="Add heet">
 		<HeetSvg size={50} />
 
 		{#if $todaysSmokes.initialized}
@@ -196,7 +178,10 @@
 		font-size: 30px;
 		user-select: none;
 		text-align: center;
-		transition: background 300ms ease-out, color 300ms ease-out, font-size 300ms;
+		transition:
+			background 300ms ease-out,
+			color 300ms ease-out,
+			font-size 300ms;
 
 		&.creating {
 			font-size: 50px;
@@ -252,7 +237,9 @@
 		text-align: center;
 		color: #f14668;
 		cursor: pointer;
-		transition: background 200ms ease-out, color 200ms ease-out;
+		transition:
+			background 200ms ease-out,
+			color 200ms ease-out;
 
 		&.undoing {
 			background: #f14668;

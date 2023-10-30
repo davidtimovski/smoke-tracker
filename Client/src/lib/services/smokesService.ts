@@ -81,9 +81,7 @@ export default class SmokesService extends DbService {
 		synced.set(false);
 
 		const today = new Date();
-		const lastSmokeToday = (
-			await this.db.smokes.filter((x) => DateUtil.datesAreEqual(x.date, today)).sortBy('date')
-		).reverse()[0];
+		const lastSmokeToday = (await this.db.smokes.filter((x) => DateUtil.datesAreEqual(x.date, today)).sortBy('date')).reverse()[0];
 
 		await this.db.smokes.delete(lastSmokeToday.id);
 		await this.db.unsyncedChanges.delete(lastSmokeToday.id);

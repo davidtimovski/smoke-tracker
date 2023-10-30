@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte/internal';
+	import { onMount } from 'svelte';
 	import { LineController, LineElement, CategoryScale, Chart, LinearScale, PointElement } from 'chart.js';
 	import StatsService from '$lib/services/statsService';
 

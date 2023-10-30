@@ -13,8 +13,7 @@
 	let usernameIsTaken = false;
 	let password = '';
 	let passwordConfirm = '';
-	$: registerButtonDisabled =
-		!authService || $online === false || username.trim().length < 3 || checkingUsername || usernameIsTaken;
+	$: registerButtonDisabled = !authService || $online === false || username.trim().length < 3 || checkingUsername || usernameIsTaken;
 	let loading = false;
 
 	let timer: number;
@@ -112,13 +111,7 @@
 			<div class="form-control">
 				<label for="username">Username</label>
 				<div class="username-input-wrap">
-					<input
-						type="text"
-						id="username"
-						bind:value={username}
-						on:keyup={() => checkUsernameAvailability()}
-						maxlength="25"
-					/>
+					<input type="text" id="username" bind:value={username} on:keyup={() => checkUsernameAvailability()} maxlength="25" />
 					<span class="availability-loader" class:loading={checkingUsername}><div class="loader" /></span>
 					<span class="availability-indicator">{!checkingUsername && usernameIsTaken ? 'taken' : ''}</span>
 				</div>
@@ -136,12 +129,7 @@
 
 			<div class="form-control submit">
 				<a href="/" class="link-button">Back</a>
-				<button
-					on:click={register}
-					class="button-with-loader"
-					class:disabled={registerButtonDisabled || loading}
-					class:loading
-				>
+				<button on:click={register} class="button-with-loader" class:disabled={registerButtonDisabled || loading} class:loading>
 					Register
 					<div class="loader" />
 				</button>
