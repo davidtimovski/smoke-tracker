@@ -36,7 +36,7 @@ export default class AuthService {
 	}
 
 	async login(username: string, password: string) {
-		const response = await fetch(Variables.baseUri + 'token', {
+		const response = await window.fetch(Variables.baseUri + 'token', {
 			method: 'post',
 			body: JSON.stringify({
 				username: username,
@@ -44,6 +44,7 @@ export default class AuthService {
 			}),
 			headers: new Headers({
 				Accept: 'application/json',
+				'Content-Type': 'application/json',
 				'X-Requested-With': 'Fetch'
 			})
 		});
@@ -71,7 +72,7 @@ export default class AuthService {
 			return true;
 		}
 
-		const response = await fetch(Variables.baseUri + `username-available/${username}`, {
+		const response = await window.fetch(Variables.baseUri + `username-available/${username}`, {
 			headers: new Headers({
 				Accept: 'application/json',
 				'X-Requested-With': 'Fetch'
@@ -82,7 +83,7 @@ export default class AuthService {
 	}
 
 	async register(username: string, password: string) {
-		const response = await fetch(Variables.baseUri + 'register', {
+		const response = await window.fetch(Variables.baseUri + 'register', {
 			method: 'post',
 			body: JSON.stringify({
 				username: username,
@@ -90,6 +91,7 @@ export default class AuthService {
 			}),
 			headers: new Headers({
 				Accept: 'application/json',
+				'Content-Type': 'application/json',
 				'X-Requested-With': 'Fetch'
 			})
 		});

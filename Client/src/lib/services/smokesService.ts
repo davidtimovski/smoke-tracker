@@ -54,12 +54,13 @@ export default class SmokesService extends DbService {
 			return;
 		}
 
-		const response = await fetch(Variables.baseUri + 'smokes', {
+		const response = await window.fetch(Variables.baseUri + 'smokes', {
 			method: 'post',
 			body: JSON.stringify(smoke),
 			headers: new Headers({
 				Accept: 'application/json',
 				Authorization: 'Bearer ' + this.authService.token,
+				'Content-Type': 'application/json',
 				'X-Requested-With': 'Fetch'
 			})
 		});
@@ -106,7 +107,7 @@ export default class SmokesService extends DbService {
 			return;
 		}
 
-		const response = await fetch(Variables.baseUri + `smokes?id=${lastSmokeToday.id}`, {
+		const response = await window.fetch(Variables.baseUri + `smokes?id=${lastSmokeToday.id}`, {
 			method: 'delete',
 			headers: new Headers({
 				Accept: 'application/json',

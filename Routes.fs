@@ -14,11 +14,11 @@ let webApp: HttpHandler =
              >=> choose [ route "/register" >=> registerHandler
                           route "/token" >=> tokenHandler
                           route "/smokes/sync"
-                          >=> authorize
-                          >=> syncSmokesHandler
+                            >=> authorize
+                            >=> syncSmokesHandler
                           route "/smokes"
-                          >=> authorize
-                          >=> createSmokeHandler ]
+                            >=> authorize
+                            >=> createSmokeHandler ]
              DELETE
              >=> choose [ route "/smokes"
                           >=> authorize
