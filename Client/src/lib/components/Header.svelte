@@ -20,9 +20,9 @@
 			<button type="button" on:click={toggleStatItems} class="stats-button">Stats</button>
 			{#if $statsDrawerIsOpen}
 				<ul in:slide>
-					<li><a href="/week">Week</a></li>
-					<li><a href="/weekAndMonth">Week & month</a></li>
-					<li><a href="/perMonth">Per month</a></li>
+					<li><a href="/past-week">Past week</a></li>
+					<li><a href="/graphs">Graphs</a></li>
+					<li><a href="/by-type">By type</a></li>
 				</ul>
 			{/if}
 		</div>
@@ -80,7 +80,9 @@
 			outline: none;
 			padding: 5px 15px;
 			color: #1e6eb0;
-			transition: background 250ms, color 250ms;
+			transition:
+				background 250ms,
+				color 250ms;
 		}
 
 		ul {

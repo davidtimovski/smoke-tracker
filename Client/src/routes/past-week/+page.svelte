@@ -18,11 +18,11 @@
 </script>
 
 <svelte:head>
-	<title>Smoke Tracker - Week</title>
+	<title>Smoke Tracker - Past week</title>
 </svelte:head>
 
 <section>
-	<div class="page-title">Week</div>
+	<div class="page-title">Past week</div>
 
 	<div class="page">
 		{#if smokesPerDay}

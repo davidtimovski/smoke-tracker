@@ -1,5 +1,6 @@
-import Statistic from '$lib/models/statistic';
+import SumByType from '$lib/models/sumByType';
 import SmokesOnDate from '$lib/models/smokesOnDate';
+import SmokesPerYear from '$lib/models/smokesPerYear';
 import DateUtil from '$lib/utils/dateUtil';
 import DbService from './dbService';
 
@@ -11,7 +12,7 @@ export default class StatsService extends DbService {
 
 		const smokes = await this.db.smokes.filter((x) => x.date > aWeekAgo).toArray();
 
-		return new Statistic(smokes);
+		return new SumByType(smokes);
 	}
 
 	async getSmokesFromThePastMonth() {
@@ -21,7 +22,17 @@ export default class StatsService extends DbService {
 
 		const smokes = await this.db.smokes.filter((x) => x.date > aMonthAgo).toArray();
 
-		return new Statistic(smokes);
+		return new SumByType(smokes);
+	}
+
+	async getSmokesFromThePastYear() {
+		const aYearAgo = new Date();
+		aYearAgo.setFullYear(aYearAgo.getFullYear() - 1);
+		DateUtil.resetHours(aYearAgo);
+
+		const smokes = await this.db.smokes.filter((x) => x.date > aYearAgo).toArray();
+
+		return new SumByType(smokes);
 	}
 
 	async smokesPerDayFromThePastWeek() {
@@ -55,6 +66,22 @@ export default class StatsService extends DbService {
 			result[i] = smokes.filter((x) => DateUtil.monthsAreEqual(x.date, aYearAgo)).length;
 
 			aYearAgo.setMonth(aYearAgo.getMonth() + 1);
+		}
+
+		return result;
+	}
+
+	async smokesPerYear() {
+		const now = new Date();
+		const smokes = await this.db.smokes.toCollection().sortBy('date');
+
+		const startingYear = smokes[0].date.getFullYear();
+		const currentYear = now.getFullYear();
+
+		const result = new Array<SmokesPerYear>();
+		for (let year = startingYear; year <= currentYear; year++) {
+			const smokesInYear = smokes.filter((x) => x.date.getFullYear() === year).length;
+			result.push(new SmokesPerYear(year, smokesInYear));
 		}
 
 		return result;

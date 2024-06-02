@@ -1,6 +1,6 @@
 import type ISmoke from './iSmoke';
 
-export default class Statistic {
+export default class SumByType {
 	public cigars: number;
 	public vapes: number;
 	public heets: number;

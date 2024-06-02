@@ -139,3 +139,10 @@ form label {
 table {
 	width: 100%;
 }
+
+.stat-title {
+	font-size: 1.2rem;
+	line-height: 1.5rem;
+	font-weight: normal;
+	margin: 5px 0 30px;
+}

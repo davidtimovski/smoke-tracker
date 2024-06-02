@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import type Statistic from '$lib/models/statistic';
+	import type SumByType from '$lib/models/sumByType';
 
-	export let data: Statistic;
+	export let data: SumByType;
 </script>
 
 {#if data}
