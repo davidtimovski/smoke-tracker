@@ -12,16 +12,16 @@
 	import VapeSvg from '$lib/components/VapeSvg.svelte';
 	import HeetSvg from '$lib/components/HeetSvg.svelte';
 
-	let loggedIn: boolean;
-	let username: string;
-	let hasAccount: boolean;
+	let loggedIn: boolean = $state(false);
+	let username: string | null = $state(null);
+	let hasAccount: boolean = $state(false);
 
-	const btnAnimationDuration = 1000;
+	const btnAnimationDuration = 900;
 
 	let authService: AuthService;
 	let smokesService: SmokesService;
 
-	let creatingCigar = false;
+	let creatingCigar = $state(false);
 	async function createCigar() {
 		if (creatingCigar) {
 			return;
@@ -37,7 +37,7 @@
 		}, btnAnimationDuration);
 	}
 
-	let creatingVape = false;
+	let creatingVape = $state(false);
 	async function createVape() {
 		if (creatingVape) {
 			return;
@@ -52,7 +52,7 @@
 		}, btnAnimationDuration);
 	}
 
-	let creatingHeet = false;
+	let creatingHeet = $state(false);
 	async function createHeet() {
 		if (creatingHeet) {
 			return;
@@ -67,8 +67,8 @@
 		}, btnAnimationDuration);
 	}
 
-	let undoButtonLabel = 'Undo';
-	let undoing = false;
+	let undoButtonLabel = $state('Undo');
+	let undoing = $state(false);
 	async function undo() {
 		if (creatingCigar || creatingVape || creatingHeet || undoing) {
 			return;
@@ -120,8 +120,8 @@
 
 <Header />
 
-<section on:click={closeStatsDrawer}>
-	<button type="button" on:click={createCigar} class="create-smoke-button cigar" class:creating={creatingCigar} aria-label="Add cigar">
+<section onclick={closeStatsDrawer}>
+	<button type="button" onclick={createCigar} class="create-smoke-button cigar" class:creating={creatingCigar} aria-label="Add cigar">
 		<CigarSvg size={50} />
 
 		{#if $todaysSmokes.initialized}
@@ -129,7 +129,7 @@
 		{/if}
 	</button>
 
-	<button type="button" on:click={createVape} class="create-smoke-button vape" class:creating={creatingVape} aria-label="Add vape">
+	<button type="button" onclick={createVape} class="create-smoke-button vape" class:creating={creatingVape} aria-label="Add vape">
 		<VapeSvg size={50} />
 
 		{#if $todaysSmokes.initialized}
@@ -137,7 +137,7 @@
 		{/if}
 	</button>
 
-	<button type="button" on:click={createHeet} class="create-smoke-button heet" class:creating={creatingHeet} aria-label="Add heet">
+	<button type="button" onclick={createHeet} class="create-smoke-button heet" class:creating={creatingHeet} aria-label="Add heet">
 		<HeetSvg size={50} />
 
 		{#if $todaysSmokes.initialized}
@@ -146,14 +146,14 @@
 	</button>
 
 	{#if $todaysSmokes.initialized && $todaysSmokes.sum > 0}
-		<button type="button" in:slide on:click={undo} class="undo-smoke-button" class:undoing>{undoButtonLabel}</button>
+		<button type="button" in:slide onclick={undo} class="undo-smoke-button" class:undoing>{undoButtonLabel}</button>
 	{/if}
 
 	<footer>
 		{#if loggedIn}
 			<div in:slide class="logged-in-menu">
 				<div class="logged-in-menu-message">Hello, {username}</div>
-				<button type="button" on:click={logout}>Logout</button>
+				<button type="button" onclick={logout}>Logout</button>
 			</div>
 		{:else}
 			<a href="/login" in:slide>Login</a>

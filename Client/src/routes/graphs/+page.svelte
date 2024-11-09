@@ -27,7 +27,7 @@
 		const perMonthData = await statsService.smokesPerMonthFromThePastYear();
 
 		perMonthCanvasCtx = perMonthCanvas.getContext('2d');
-		perMonthChart = new Chart(<CanvasRenderingContext2D>perMonthCanvasCtx, {
+		perMonthChart = new Chart(perMonthCanvasCtx!, {
 			type: 'line',
 			data: {
 				labels: monthLabels,
@@ -57,7 +57,7 @@
 		const smokesPerYear = perYearData.map((x) => x.smokes);
 
 		perYearCanvasCtx = perYearCanvas.getContext('2d');
-		perYearChart = new Chart(<CanvasRenderingContext2D>perYearCanvasCtx, {
+		perYearChart = new Chart(perYearCanvasCtx!, {
 			type: 'line',
 			data: {
 				labels: yearLabels,
@@ -110,7 +110,5 @@
 </section>
 
 <style lang="scss">
-	.canvas {
-		margin-bottom: 60px;
-	}
+	/*$$__STYLE_CONTENT__$$*/
 </style>

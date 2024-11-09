@@ -3,10 +3,10 @@ import type RegisterResult from '$lib/models/registerResult';
 import Variables from '$lib/variables';
 
 export default class AuthService {
-	private expires: Date = null;
-	private loginCheckInterval: number;
-	token: string = null;
-	username: string = null;
+	private expires: Date | null = null;
+	private loginCheckInterval: number | undefined;
+	token: string | null = null;
+	username: string | null = null;
 	hasAccount: boolean;
 
 	constructor() {
@@ -32,7 +32,7 @@ export default class AuthService {
 			return false;
 		}
 
-		return this.expires > new Date();
+		return !this.expires || this.expires > new Date();
 	}
 
 	async login(username: string, password: string) {
@@ -107,12 +107,12 @@ export default class AuthService {
 		this.expires = this.token = this.username = null;
 
 		window.clearInterval(this.loginCheckInterval);
-		this.loginCheckInterval = null;
+		this.loginCheckInterval = undefined;
 	}
 
 	private setupLoginCheck() {
 		this.loginCheckInterval = window.setInterval(() => {
-			if (this.expires < new Date()) {
+			if (!this.expires || this.expires < new Date()) {
 				this.logout();
 			}
 		}, 5000);

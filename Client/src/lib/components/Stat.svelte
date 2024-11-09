@@ -2,7 +2,11 @@
 	import { slide } from 'svelte/transition';
 	import type SumByType from '$lib/models/sumByType';
 
-	export let data: SumByType;
+	interface Props {
+		data: SumByType;
+	}
+
+	let { data }: Props = $props();
 </script>
 
 {#if data}

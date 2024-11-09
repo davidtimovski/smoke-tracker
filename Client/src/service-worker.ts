@@ -1,27 +1,37 @@
+/// <reference lib="webworker" />
+/// <reference types="@sveltejs/kit" />
 import { build, files, version } from '$service-worker';
 
+declare var self: ServiceWorkerGlobalScope;
+
+// Create a unique cache name for this deployment
+const CACHE = `cache-${version}`;
+
+const ASSETS = [
+	...build, // the app itself
+	...files // everything in `static`
+];
+
 self.addEventListener('install', (event: ExtendableEvent) => {
-	event.waitUntil(
-		caches.open(version).then((cache) => {
-			const preCacheResources = ['/'].concat(build).concat(files);
-			cache.addAll(preCacheResources);
-		})
-	);
+	// Create a new cache and add all files to it
+	async function addFilesToCache() {
+		const cache = await caches.open(CACHE);
+		await cache.addAll(ASSETS);
+	}
+
+	event.waitUntil(addFilesToCache());
 });
 
 // Remove old caches
 self.addEventListener('activate', (event: ExtendableEvent) => {
-	event.waitUntil(
-		caches.keys().then((keyList) => {
-			return Promise.all(
-				keyList.map((key) => {
-					if (key !== version) {
-						return caches.delete(key);
-					}
-				})
-			);
-		})
-	);
+	// Remove previous cached data from disk
+	async function deleteOldCaches() {
+		for (const key of await caches.keys()) {
+			if (key !== CACHE) await caches.delete(key);
+		}
+	}
+
+	event.waitUntil(deleteOldCaches());
 });
 
 // Cache or fall back to the network

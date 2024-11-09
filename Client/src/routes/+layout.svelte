@@ -9,6 +9,12 @@
 	import SyncService from '$lib/services/syncService';
 	import SmokesService from '$lib/services/smokesService';
 
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
+
 	onMount(() => {
 		online.set(navigator.onLine);
 
@@ -30,7 +36,7 @@
 
 <main>
 	<div class="container">
-		<slot />
+		{@render children?.()}
 	</div>
 </main>
 

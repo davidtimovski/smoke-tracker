@@ -6,16 +6,18 @@
 	import { online } from '$lib/stores';
 	import AuthService from '$lib/services/authService';
 
-	let authService: AuthService;
+	let authService: AuthService | null = $state(null);
 
-	let username = '';
-	let password = '';
-	let registrationRedirect = false;
-	$: loginButtonDisabled = !authService || $online === false;
-	let loading = false;
+	let username = $state('');
+	let password = $state('');
+	let registrationRedirect = $state(false);
+	let loginButtonDisabled = $derived(!authService || $online === false);
+	let loading = $state(false);
 
-	let invalidLoginMessage: string;
-	async function login() {
+	let invalidLoginMessage: string | null = $state(null);
+	async function login(event: any) {
+		event.preventDefault();
+
 		if (loginButtonDisabled || loading) {
 			return;
 		}
@@ -35,7 +37,7 @@
 		}
 
 		try {
-			const result = await authService.login(username, password);
+			const result = await authService!.login(username, password);
 			if (result.success) {
 				await goto('/');
 			} else {
@@ -85,7 +87,7 @@
 			<div in:slide class="validation-alert">{invalidLoginMessage}</div>
 		{/if}
 
-		<form on:submit|preventDefault={login} class="login-form">
+		<form onsubmit={login} class="login-form">
 			<div class="form-control">
 				<label for="username">Username</label>
 				<input type="text" id="username" bind:value={username} maxlength="25" />
@@ -98,9 +100,9 @@
 
 			<div class="form-control submit">
 				<a href="/" class="link-button">Back</a>
-				<button on:click={login} class="button-with-loader" class:disabled={loginButtonDisabled || loading} class:loading>
+				<button onclick={login} class="button-with-loader" class:disabled={loginButtonDisabled || loading} class:loading>
 					Login
-					<div class="loader" />
+					<div class="loader"></div>
 				</button>
 			</div>
 		</form>

@@ -6,9 +6,9 @@
 
 	import Stat from '$lib/components/Stat.svelte';
 
-	let inThePastWeek: SumByType;
-	let inThePastMonth: SumByType;
-	let inThePastYear: SumByType;
+	let inThePastWeek: SumByType = $state();
+	let inThePastMonth: SumByType = $state();
+	let inThePastYear: SumByType = $state();
 
 	onMount(() => {
 		const statsService = new StatsService();

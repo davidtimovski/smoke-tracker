@@ -3,7 +3,7 @@
 	import { slide } from 'svelte/transition';
 	import { statsDrawerIsOpen } from '$lib/stores';
 
-	$: syncLabel = $synced ? 'Synced with server' : "Some changes haven't been synced";
+	let syncLabel = $derived($synced ? 'Synced with server' : "Some changes haven't been synced");
 
 	function toggleStatItems() {
 		statsDrawerIsOpen.set(!$statsDrawerIsOpen);
@@ -12,12 +12,12 @@
 
 <header>
 	<div class="status-indicators" role="tooltip" title={syncLabel} aria-label={syncLabel}>
-		<div class="synced" class:inactive={!$synced} />
-		<div class="not-synced" class:inactive={$synced} />
+		<div class="synced" class:inactive={!$synced}></div>
+		<div class="not-synced" class:inactive={$synced}></div>
 	</div>
 	<nav>
 		<div class="stats-drawer" class:open={$statsDrawerIsOpen}>
-			<button type="button" on:click={toggleStatItems} class="stats-button">Stats</button>
+			<button type="button" onclick={toggleStatItems} class="stats-button">Stats</button>
 			{#if $statsDrawerIsOpen}
 				<ul in:slide>
 					<li><a href="/past-week">Past week</a></li>

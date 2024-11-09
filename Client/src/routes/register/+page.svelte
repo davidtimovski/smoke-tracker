@@ -6,15 +6,15 @@
 	import { online } from '$lib/stores';
 	import AuthService from '$lib/services/authService';
 
-	let authService: AuthService;
+	let authService: AuthService | null = $state(null);
 
-	let username = '';
-	let checkingUsername = false;
-	let usernameIsTaken = false;
-	let password = '';
-	let passwordConfirm = '';
-	$: registerButtonDisabled = !authService || $online === false || username.trim().length < 3 || checkingUsername || usernameIsTaken;
-	let loading = false;
+	let username = $state('');
+	let checkingUsername = $state(false);
+	let usernameIsTaken = $state(false);
+	let password = $state('');
+	let passwordConfirm = $state('');
+	let registerButtonDisabled = $derived(!authService || $online === false || username.trim().length < 3 || checkingUsername || usernameIsTaken);
+	let loading = $state(false);
 
 	let timer: number;
 	const checkUsernameAvailability = () => {
@@ -27,7 +27,7 @@
 		window.clearTimeout(timer);
 		timer = window.setTimeout(async () => {
 			try {
-				const available = await authService.checkIfUsernameAvailable(username);
+				const available = await authService!.checkIfUsernameAvailable(username);
 				usernameIsTaken = !available;
 				checkingUsername = false;
 			} catch {
@@ -36,8 +36,10 @@
 		}, 800);
 	};
 
-	let registrationErrorMessage: string;
-	async function register() {
+	let registrationErrorMessage: string | null = $state(null);
+	async function register(event: any) {
+		event.preventDefault();
+
 		if (registerButtonDisabled || loading) {
 			return;
 		}
@@ -68,7 +70,7 @@
 		}
 
 		try {
-			const result = await authService.register(trimmedUsername, password);
+			const result = await authService!.register(trimmedUsername, password);
 			if (result.success) {
 				await goto(`/login?u=${trimmedUsername}`);
 			} else {
@@ -107,12 +109,12 @@
 			<div in:slide class="validation-alert">{registrationErrorMessage}</div>
 		{/if}
 
-		<form on:submit|preventDefault={register} class="registration-form">
+		<form onsubmit={register} class="registration-form">
 			<div class="form-control">
 				<label for="username">Username</label>
 				<div class="username-input-wrap">
-					<input type="text" id="username" bind:value={username} on:keyup={() => checkUsernameAvailability()} maxlength="25" />
-					<span class="availability-loader" class:loading={checkingUsername}><div class="loader" /></span>
+					<input type="text" id="username" bind:value={username} onkeyup={() => checkUsernameAvailability()} maxlength="25" />
+					<span class="availability-loader" class:loading={checkingUsername}><div class="loader"></div></span>
 					<span class="availability-indicator">{!checkingUsername && usernameIsTaken ? 'taken' : ''}</span>
 				</div>
 			</div>
@@ -129,9 +131,9 @@
 
 			<div class="form-control submit">
 				<a href="/" class="link-button">Back</a>
-				<button on:click={register} class="button-with-loader" class:disabled={registerButtonDisabled || loading} class:loading>
+				<button onclick={register} class="button-with-loader" class:disabled={registerButtonDisabled || loading} class:loading>
 					Register
-					<div class="loader" />
+					<div class="loader"></div>
 				</button>
 			</div>
 		</form>
